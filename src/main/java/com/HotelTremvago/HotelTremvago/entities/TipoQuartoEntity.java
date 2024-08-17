@@ -9,12 +9,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "hotel")
+@Table(name = "Tipo_Quarto")
 public class TipoQuartoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,4 +26,8 @@ public class TipoQuartoEntity {
     @NotBlank
     private String nome;
     private Double valor;
+
+    @OneToMany(mappedBy = "tipoQuarto")
+    private List<QuartoEntity> quartos;
+
 }

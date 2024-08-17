@@ -1,5 +1,7 @@
 package com.HotelTremvago.HotelTremvago.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -10,13 +12,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.Set;
 
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "hotel")
+@Table(name = "usuario")
 public class UsuarioEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +27,7 @@ public class UsuarioEntity {
     @NotNull
     @NotEmpty
     @NotBlank
+    @Column(unique = true)
     private String nome;
     private Date dataNascimento;
     @NotNull
@@ -33,6 +37,7 @@ public class UsuarioEntity {
     @NotNull
     @NotEmpty
     @NotBlank
+    @Column(unique = true)
     private String rg;
     @NotNull
     @NotEmpty
@@ -42,4 +47,10 @@ public class UsuarioEntity {
     @NotEmpty
     @NotBlank
     private String email;
+
+    @OneToMany (mappedBy = "usuario")
+    @JsonIgnoreProperties ("usuario")
+    private Set<ReservaEntity> reservas;
+
+
 }

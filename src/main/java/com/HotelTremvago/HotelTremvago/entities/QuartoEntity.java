@@ -1,5 +1,6 @@
 package com.HotelTremvago.HotelTremvago.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -9,12 +10,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+import java.util.Set;
+
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "hotel")
+@Table(name = "quarto")
 public class QuartoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +27,24 @@ public class QuartoEntity {
     @NotEmpty
     @NotBlank
     private String nome;
-    private int capacidade;
 
-    private int tipoQuarto;
+    @OneToMany (mappedBy = "quarto")
+    @JsonIgnoreProperties("quarto")
+    private List<ReservaEntity> quartos;
+
+    @OneToMany(mappedBy = "quarto")
+    private List<ReservaEntity> reservas;
+
+    @ManyToOne
+    @JoinColumn(name = "tipo_quarto_id")
+    private TipoQuartoEntity tipoQuarto;
+
+    @ManyToOne
+    @JoinColumn(name = "hotel_id")
+    private HotelEntity hotel;
+
+    @OneToMany(mappedBy = "quarto")
+    private List<HospedeEntity> hospedes;
+
 }
+

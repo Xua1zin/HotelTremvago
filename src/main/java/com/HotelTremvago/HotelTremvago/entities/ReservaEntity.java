@@ -1,5 +1,6 @@
 package com.HotelTremvago.HotelTremvago.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -32,7 +33,21 @@ public class ReservaEntity {
     @NotBlank
     private Double total;
 
-    private int usuario;
-    private int hospede;
-    private int quarto;
+
+//    private int hospede;
+
+
+    @ManyToOne
+    @JoinColumn(name = "usuario_id")
+    @JsonIgnoreProperties("reserva")
+
+    private UsuarioEntity usuario;
+
+    @ManyToOne
+    @JoinColumn(name = "quarto")
+    private QuartoEntity quarto;
+
+
+
+
 }
