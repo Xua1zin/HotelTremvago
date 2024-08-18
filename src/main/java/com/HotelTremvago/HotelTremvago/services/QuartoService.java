@@ -2,25 +2,42 @@ package com.HotelTremvago.HotelTremvago.services;
 
 import com.HotelTremvago.HotelTremvago.entities.HotelEntity;
 import com.HotelTremvago.HotelTremvago.entities.QuartoEntity;
+import com.HotelTremvago.HotelTremvago.entities.TipoQuartoEntity;
 import com.HotelTremvago.HotelTremvago.repositories.HotelRepository;
 import com.HotelTremvago.HotelTremvago.repositories.QuartoRepository;
+import com.HotelTremvago.HotelTremvago.repositories.TipoQuartoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class QuartoService {
     @Autowired
     private QuartoRepository quartoRepository;
+    private TipoQuartoRepository tipoQuartoRepository;
+    public QuartoService(QuartoRepository quartoRepository, TipoQuartoRepository tipoQuartoRepository) {
+        this.quartoRepository = quartoRepository;
+        this.tipoQuartoRepository = tipoQuartoRepository;
+    }
 
-    public QuartoEntity save(QuartoEntity quartoEntity){
-        try{
+    public QuartoEntity criarQuarto(QuartoEntity quartoEntity){
+        try {
+            TipoQuartoEntity tipoQuartoEntity = quartoEntity.getTipoQuarto();
+            Optional<TipoQuartoEntity> tipoQuartoExistente = tipoQuartoRepository.findById(tipoQuartoEntity.getId());
+            if(!tipoQuartoExistente.isPresent()){
+                tipoQuartoRepository.save(tipoQuartoEntity);
+            } else {
+                tipoQuartoEntity = tipoQuartoExistente.get();
+                quartoEntity.setTipoQuarto(tipoQuartoEntity);
+            }
             return quartoRepository.save(quartoEntity);
         } catch(Exception e){
-            System.out.println("Nao foi possivel salvar quarto: " + e.getMessage());
-            return new QuartoEntity();
+            System.out.println("Não foi possível criar o quarto: " + e.getMessage());
+            e.printStackTrace();
+            return null;
         }
     }
 
