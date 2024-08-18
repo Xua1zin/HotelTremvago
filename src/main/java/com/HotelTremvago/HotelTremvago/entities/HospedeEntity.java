@@ -19,44 +19,42 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "hospede")
-
 public class HospedeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @NotNull
-    @NotEmpty
     @NotBlank
     private String nome;
-    private Date dataNascimento;
+
     @NotNull
-    @NotEmpty
+    @NotBlank
+    private Date dataNascimento;
+
+    @NotNull
     @NotBlank
     private String cpf;
+
     @NotNull
-    @NotEmpty
     @NotBlank
     private String rg;
+
     @NotNull
-    @NotEmpty
     @NotBlank
     private String telefone;
+
     @NotNull
-    @NotEmpty
     @NotBlank
     private String email;
 
     @ManyToOne
     @JoinColumn(name = "quarto_id")
+    @JsonIgnoreProperties("hospedes")
     private QuartoEntity quarto;
 
-    @OneToMany(mappedBy = "hotel")
-    private List<QuartoEntity> quartos;
-
-
-
-
-
-
-
+    @ManyToMany(mappedBy = "hospedes")
+    @JsonIgnoreProperties("hospedes")
+    private List<ReservaEntity> reservas;
 }
+

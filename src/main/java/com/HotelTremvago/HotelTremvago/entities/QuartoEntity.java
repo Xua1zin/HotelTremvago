@@ -23,16 +23,13 @@ public class QuartoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @NotNull
-    @NotEmpty
     @NotBlank
     private String nome;
 
-    @OneToMany (mappedBy = "quarto")
-    @JsonIgnoreProperties("quarto")
-    private List<ReservaEntity> quartos;
-
     @OneToMany(mappedBy = "quarto")
+    @JsonIgnoreProperties("quarto")
     private List<ReservaEntity> reservas;
 
     @ManyToOne
@@ -44,7 +41,6 @@ public class QuartoEntity {
     private HotelEntity hotel;
 
     @OneToMany(mappedBy = "quarto")
+    @JsonIgnoreProperties("quarto")
     private List<HospedeEntity> hospedes;
-
 }
-

@@ -24,33 +24,35 @@ public class UsuarioEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @NotNull
-    @NotEmpty
+    @NotBlank
+    private String nome;
+
+    @NotNull
+    @NotBlank
+    private Date dataNascimento;
+
+    @NotNull
     @NotBlank
     @Column(unique = true)
-    private String nome;
-    private Date dataNascimento;
-    @NotNull
-    @NotEmpty
-    @NotBlank
     private String cpf;
+
     @NotNull
-    @NotEmpty
     @NotBlank
     @Column(unique = true)
     private String rg;
+
     @NotNull
-    @NotEmpty
     @NotBlank
     private String telefone;
+
     @NotNull
-    @NotEmpty
     @NotBlank
+    @Column(unique = true)
     private String email;
 
-    @OneToMany (mappedBy = "usuario")
-    @JsonIgnoreProperties ("usuario")
+    @OneToMany(mappedBy = "usuario")
+    @JsonIgnoreProperties("usuario")
     private Set<ReservaEntity> reservas;
-
-
 }

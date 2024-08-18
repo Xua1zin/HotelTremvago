@@ -3,7 +3,6 @@ package com.HotelTremvago.HotelTremvago.entities;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,46 +21,44 @@ public class HotelEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @NotNull
-    @NotEmpty
     @NotBlank
     private String nomeFantasia;
+
     @NotNull
-    @NotEmpty
     @NotBlank
     private String nomeJuridico;
+
     @NotNull
-    @NotEmpty
     @NotBlank
+    @Column(unique = true)
     private String cnpj;
+
     @NotNull
-    @NotEmpty
     @NotBlank
     private String cep;
-    private String cidade;
+
     @NotNull
-    @NotEmpty
     @NotBlank
+    @Column(unique = true)
     private String email;
+
     @NotNull
-    @NotEmpty
     @NotBlank
     private String telefone;
-    private int quarto;
-
 
     @OneToMany(mappedBy = "hotel")
+    @JsonIgnoreProperties("hotel")
     private List<QuartoEntity> quartos;
 
-//    @ManyToMany(mappedBy = "hotel_hospedes")
-//    @JsonIgnoreProperties("hotel_hospedes")
-//    private List<HospedeEntity> hotel_hospedes;
+    @ManyToOne
+    @JoinColumn(name = "cidade_id")
+    @JsonIgnoreProperties("hotelCidades")
+    private CidadeEntity cidade;
 
-
-
-
-
-
-
-
+    @ManyToMany(mappedBy = "hoteis")
+    @JsonIgnoreProperties("hoteis")
+    private List<ReservaEntity> reservas;
 }
+

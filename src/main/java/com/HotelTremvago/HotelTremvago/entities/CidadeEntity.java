@@ -3,7 +3,6 @@ package com.HotelTremvago.HotelTremvago.entities;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,20 +16,22 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "tipo_quarto")
-public class TipoQuartoEntity {
+@Table(name = "cidade")
+public class CidadeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
     @NotBlank
-    private String nome;
+    @Column(unique = true)
+    private String cidade;
 
-    private Double valor;
+    @NotNull
+    @NotBlank
+    private String estado;
 
-    @OneToMany(mappedBy = "tipoQuarto")
-    @JsonIgnoreProperties("tipoQuarto")
-    private List<QuartoEntity> quartos;
+    @OneToMany(mappedBy = "cidade")
+    @JsonIgnoreProperties("cidade")
+    private List<HotelEntity> hotelCidades;
 }
-
