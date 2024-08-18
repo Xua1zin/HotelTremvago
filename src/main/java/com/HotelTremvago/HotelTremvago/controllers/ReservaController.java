@@ -67,4 +67,22 @@ public class ReservaController {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
+    @PostMapping("/addHospede/{reservaId}/{hospedeId}")
+    public ResponseEntity<ReservaEntity> addHospedeToReserva(@PathVariable Long reservaId, @PathVariable Long hospedeId) {
+        try {
+            ReservaEntity reserva = reservaService.addHospedeToReserva(reservaId, hospedeId);
+            return new ResponseEntity<>(reserva, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+    @PostMapping("/removeHospede/{reservaId}/{hospedeId}")
+    public ResponseEntity<ReservaEntity> removeHospedeFromReserva(@PathVariable Long reservaId, @PathVariable Long hospedeId) {
+        try {
+            ReservaEntity reserva = reservaService.removeHospedeFromReserva(reservaId, hospedeId);
+            return new ResponseEntity<>(reserva, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
 }
