@@ -1,12 +1,15 @@
 package com.HotelTremvago.HotelTremvago.controllers;
 
 import com.HotelTremvago.HotelTremvago.entities.ReservaEntity;
+import com.HotelTremvago.HotelTremvago.entities.ReservaStatus;
 import com.HotelTremvago.HotelTremvago.services.ReservaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -15,12 +18,12 @@ public class ReservaController {
     @Autowired
     private ReservaService reservaService;
 
-    @PostMapping("/save")
-    public ResponseEntity<ReservaEntity> save(@RequestBody ReservaEntity reservaEntity){
-        try{
+    @PostMapping("/reserva")
+    public ResponseEntity<ReservaEntity> save(@RequestBody ReservaEntity reservaEntity) {
+        try {
             ReservaEntity reserva = reservaService.save(reservaEntity);
             return new ResponseEntity<>(reserva, HttpStatus.OK);
-        } catch(Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
