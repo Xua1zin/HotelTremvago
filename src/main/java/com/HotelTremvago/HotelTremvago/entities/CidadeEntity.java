@@ -31,7 +31,5 @@ public class CidadeEntity {
     @NotBlank
     private String estado;
 
-    @OneToMany(mappedBy = "cidade")
-    @JsonIgnoreProperties("cidade")
-    private List<HotelEntity> hotelCidades;
+
 }

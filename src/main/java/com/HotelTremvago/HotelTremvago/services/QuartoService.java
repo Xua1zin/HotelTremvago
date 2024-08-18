@@ -18,6 +18,7 @@ public class QuartoService {
     @Autowired
     private QuartoRepository quartoRepository;
     private TipoQuartoRepository tipoQuartoRepository;
+
     public QuartoService(QuartoRepository quartoRepository, TipoQuartoRepository tipoQuartoRepository) {
         this.quartoRepository = quartoRepository;
         this.tipoQuartoRepository = tipoQuartoRepository;
