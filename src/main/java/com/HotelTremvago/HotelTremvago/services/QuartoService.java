@@ -17,18 +17,16 @@ import java.util.Optional;
 public class QuartoService {
     @Autowired
     private QuartoRepository quartoRepository;
+    @Autowired
     private TipoQuartoRepository tipoQuartoRepository;
-    public QuartoService(QuartoRepository quartoRepository, TipoQuartoRepository tipoQuartoRepository) {
-        this.quartoRepository = quartoRepository;
-        this.tipoQuartoRepository = tipoQuartoRepository;
-    }
+
 
     public QuartoEntity criarQuarto(QuartoEntity quartoEntity){
         try {
             TipoQuartoEntity tipoQuartoEntity = quartoEntity.getTipoQuarto();
-            Optional<TipoQuartoEntity> tipoQuartoExistente = tipoQuartoRepository.findById(tipoQuartoEntity.getId());
+            Optional<TipoQuartoEntity> tipoQuartoExistente = tipoQuartoRepository.findByNome(tipoQuartoEntity.getNome());
             if(!tipoQuartoExistente.isPresent()){
-                tipoQuartoRepository.save(tipoQuartoEntity);
+                this.tipoQuartoRepository.save(tipoQuartoEntity);
             } else {
                 tipoQuartoEntity = tipoQuartoExistente.get();
                 quartoEntity.setTipoQuarto(tipoQuartoEntity);
