@@ -30,7 +30,6 @@ public class UsuarioEntity {
     private String nome;
 
     @NotNull
-    @NotBlank
     private Date dataNascimento;
 
     @NotNull

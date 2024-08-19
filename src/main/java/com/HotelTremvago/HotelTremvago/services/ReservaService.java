@@ -1,10 +1,15 @@
 package com.HotelTremvago.HotelTremvago.services;
 
 import com.HotelTremvago.HotelTremvago.entities.ReservaEntity;
+import com.HotelTremvago.HotelTremvago.entities.TipoQuartoEntity;
 import com.HotelTremvago.HotelTremvago.repositories.ReservaRepository;
+import com.HotelTremvago.HotelTremvago.repositories.TipoQuartoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 
@@ -12,11 +17,28 @@ import java.util.List;
 public class ReservaService {
     @Autowired
     private ReservaRepository reservaRepository;
+    @Autowired
+    private TipoQuartoRepository tipoQuartoRepository;
 
-    public ReservaEntity save(ReservaEntity reservaEntity){
-        try{
+    public Double calcularDiaria(ReservaEntity reservaEntity) {
+        TipoQuartoEntity tipoQuartoEntity = reservaEntity.getQuarto().getTipoQuarto();
+
+        LocalDate dataInicio = reservaEntity.getDataInicio().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate dataFinal = reservaEntity.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        long dias = ChronoUnit.DAYS.between(dataInicio, dataFinal);
+        Double diaria = tipoQuartoEntity.getValor();
+
+        return dias * diaria;
+    }
+
+
+    public ReservaEntity save(ReservaEntity reservaEntity) {
+        try {
+            Double preco = calcularDiaria(reservaEntity);
+            reservaEntity.setTotal(preco);
             return reservaRepository.save(reservaEntity);
-        } catch(Exception e){
+        } catch (Exception e) {
             System.out.println("Nao foi possivel salvar reserva: " + e.getMessage());
             return new ReservaEntity();
         }
