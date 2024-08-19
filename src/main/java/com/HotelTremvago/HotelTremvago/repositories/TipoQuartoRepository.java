@@ -10,6 +10,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface TipoQuartoRepository extends JpaRepository<TipoQuartoEntity, Long> {
-    @Query(value = "SELECT * FROM tipo_quarto WHERE LOWER(nome = ?)", nativeQuery = true)
+    @Query(value = "SELECT * FROM tipo_quarto WHERE (nome = ?)", nativeQuery = true)
     Optional<TipoQuartoEntity> findByNome(@Param("nome") String nome);
 }
