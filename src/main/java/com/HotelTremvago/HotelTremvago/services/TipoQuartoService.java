@@ -1,8 +1,6 @@
 package com.HotelTremvago.HotelTremvago.services;
 
-import com.HotelTremvago.HotelTremvago.entities.QuartoEntity;
 import com.HotelTremvago.HotelTremvago.entities.TipoQuartoEntity;
-import com.HotelTremvago.HotelTremvago.repositories.QuartoRepository;
 import com.HotelTremvago.HotelTremvago.repositories.TipoQuartoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -25,19 +25,15 @@ public class ReservaEntity {
     private Long id;
 
     @NotNull
-    @NotBlank
     private Date dataInicio;
 
     @NotNull
-    @NotBlank
     private Date dataFinal;
 
     @NotNull
     @NotBlank
     private String status;
 
-    @NotNull
-    @NotBlank
     private Double total;
 
     @ManyToOne

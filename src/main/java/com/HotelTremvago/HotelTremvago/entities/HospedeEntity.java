@@ -29,7 +29,6 @@ public class HospedeEntity {
     private String nome;
 
     @NotNull
-    @NotBlank
     private Date dataNascimento;
 
     @NotNull
