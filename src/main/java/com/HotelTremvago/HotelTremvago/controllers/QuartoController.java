@@ -15,13 +15,18 @@ public class QuartoController {
     @Autowired
     private QuartoService quartoService;
 
-    @PostMapping("/save")
-    public ResponseEntity<QuartoEntity> save(@RequestBody QuartoEntity quartoEntity){
-        try{
-            QuartoEntity quarto = quartoService.save(quartoEntity);
-            return new ResponseEntity<>(quarto, HttpStatus.OK);
-        } catch(Exception e){
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+    @PostMapping("/criarQuarto")
+    public ResponseEntity<String> criarQuarto(@RequestBody QuartoEntity quartoEntity) {
+        try {
+            QuartoEntity novoQuarto = quartoService.criarQuarto(quartoEntity);
+
+            if (novoQuarto != null && novoQuarto.getId() != null) {
+                return ResponseEntity.status(HttpStatus.CREATED).body("Quarto criado com sucesso.");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Falha ao criar o quarto.");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno do servidor.");
         }
     }
 

@@ -1,6 +1,8 @@
 package com.HotelTremvago.HotelTremvago.services;
 
+import com.HotelTremvago.HotelTremvago.entities.HospedeEntity;
 import com.HotelTremvago.HotelTremvago.entities.ReservaEntity;
+import com.HotelTremvago.HotelTremvago.repositories.HospedeRepository;
 import com.HotelTremvago.HotelTremvago.repositories.ReservaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +14,8 @@ import java.util.List;
 public class ReservaService {
     @Autowired
     private ReservaRepository reservaRepository;
+    @Autowired
+    private HospedeRepository hospedeRepository;
 
     public ReservaEntity save(ReservaEntity reservaEntity){
         try{
@@ -58,4 +62,41 @@ public class ReservaService {
             return Collections.emptyList();
         }
     }
+    public ReservaEntity addHospedeToReserva(Long reservaId, Long hospedeId) {
+        try {
+            ReservaEntity reserva = reservaRepository.findById(reservaId).orElseThrow(() -> new RuntimeException("Reserva não encontrada"));
+            HospedeEntity hospede = hospedeRepository.findById(hospedeId).orElseThrow(() -> new RuntimeException("Hospede não encontrado"));
+
+            reserva.getHospedes().add(hospede);
+            hospede.getReservas().add(reserva);
+
+            reservaRepository.save(reserva);
+            hospedeRepository.save(hospede);
+
+            return reserva;
+        } catch (Exception e) {
+            System.out.println("Não foi possível adicionar o hóspede à reserva: " + e.getMessage());
+            return null;
+        }
+    }
+    public ReservaEntity removeHospedeFromReserva(Long reservaId, Long hospedeId) {
+        try {
+            ReservaEntity reserva = reservaRepository.findById(reservaId).orElseThrow(() -> new RuntimeException("Reserva não encontrada"));
+            HospedeEntity hospede = hospedeRepository.findById(hospedeId).orElseThrow(() -> new RuntimeException("Hospede não encontrado"));
+
+            reserva.getHospedes().remove(hospede);
+            hospede.getReservas().remove(reserva);
+
+            reservaRepository.save(reserva);
+            hospedeRepository.save(hospede);
+
+            return reserva;
+        } catch (Exception e) {
+            System.out.println("Não foi possível remover o hóspede da reserva: " + e.getMessage());
+            return null;
+        }
+    }
 }
+
+
+
