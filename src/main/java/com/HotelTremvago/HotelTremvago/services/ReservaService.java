@@ -1,7 +1,9 @@
 package com.HotelTremvago.HotelTremvago.services;
 
+import com.HotelTremvago.HotelTremvago.entities.QuartoEntity;
 import com.HotelTremvago.HotelTremvago.entities.ReservaEntity;
 import com.HotelTremvago.HotelTremvago.entities.TipoQuartoEntity;
+import com.HotelTremvago.HotelTremvago.repositories.QuartoRepository;
 import com.HotelTremvago.HotelTremvago.repositories.ReservaRepository;
 import com.HotelTremvago.HotelTremvago.repositories.TipoQuartoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ReservaService {
@@ -19,9 +22,14 @@ public class ReservaService {
     private ReservaRepository reservaRepository;
     @Autowired
     private TipoQuartoRepository tipoQuartoRepository;
+    @Autowired
+    private QuartoRepository quartoRepository;
 
     public Double calcularDiaria(ReservaEntity reservaEntity) {
-        TipoQuartoEntity tipoQuartoEntity = reservaEntity.getQuarto().getTipoQuarto();
+        long idQuarto = reservaEntity.getQuarto().getId();
+        Optional<QuartoEntity> quartoEntity = quartoRepository.findById(idQuarto);
+
+        TipoQuartoEntity tipoQuartoEntity = quartoEntity.get().getTipoQuarto();
 
         LocalDate dataInicio = reservaEntity.getDataInicio().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         LocalDate dataFinal = reservaEntity.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
