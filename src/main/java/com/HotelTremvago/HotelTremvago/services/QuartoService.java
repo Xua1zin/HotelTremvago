@@ -74,9 +74,6 @@ public class QuartoService {
         return quartosDisponiveis;
     }
 
-
-
-
     public String delete(Long id){
         try {
             quartoRepository.deleteById(id);
@@ -86,14 +83,20 @@ public class QuartoService {
         }
     }
 
-    public QuartoEntity update(QuartoEntity quartoEntity, Long id){
-        try{
-            quartoEntity.setId(id);
-            return quartoRepository.save(quartoEntity);
-        } catch(Exception e){
-            System.out.println("Nao foi possivel atualizar quarto: " + e.getMessage());
-            return new QuartoEntity();
+    public QuartoEntity update(QuartoEntity updatedQuarto, Long id) {
+        QuartoEntity quarto = quartoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Quarto not found with id " + id));
+
+        quarto.setNome(updatedQuarto.getNome());
+        quarto.setCapacidade(updatedQuarto.getCapacidade());
+
+         if (updatedQuarto.getTipoQuarto() != null) {
+            TipoQuartoEntity tipoQuarto = tipoQuartoRepository.findById(updatedQuarto.getTipoQuarto().getId())
+                    .orElseThrow(() -> new RuntimeException("TipoQuarto not found with id " + updatedQuarto.getTipoQuarto().getId()));
+             quarto.setTipoQuarto(tipoQuarto);
         }
+
+        return quartoRepository.save(quarto);
     }
 
     public QuartoEntity findById(Long id){

@@ -29,7 +29,7 @@ public class TipoQuartoEntity {
 
     private Double valor;
 
-    @OneToMany(mappedBy = "tipoQuarto")
+    @OneToMany(mappedBy = "tipoQuarto", cascade = CascadeType.REMOVE)
     @JsonIgnoreProperties("tipoQuarto")
     private List<QuartoEntity> quartos;
 }

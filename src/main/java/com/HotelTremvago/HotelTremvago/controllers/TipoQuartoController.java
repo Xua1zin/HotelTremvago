@@ -30,19 +30,19 @@ public class TipoQuartoController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> delete(@PathVariable Long id) {
         try {
-            String tipoQuarto = tipoQuartoService.delete(id);
-            return new ResponseEntity<>(tipoQuarto, HttpStatus.OK);
+            String result = tipoQuartoService.delete(id);
+            return new ResponseEntity<>(result, HttpStatus.OK);
         } catch(Exception e){
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Não foi possível deletar tipo de quarto", HttpStatus.BAD_REQUEST);
         }
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<TipoQuartoEntity> update(@RequestBody TipoQuartoEntity tipoQuartoEntity, Long id){
-        try{
-            TipoQuartoEntity tipoQuarto = tipoQuartoService.update(tipoQuartoEntity, id);
-            return new ResponseEntity<>(tipoQuarto, HttpStatus.OK);
-        } catch(Exception e){
+    public ResponseEntity<TipoQuartoEntity> update(@RequestBody TipoQuartoEntity tipoQuartoEntity, @PathVariable Long id) {
+        try {
+            TipoQuartoEntity updatedTipoQuarto = tipoQuartoService.update(tipoQuartoEntity, id);
+            return new ResponseEntity<>(updatedTipoQuarto, HttpStatus.OK);
+        } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }

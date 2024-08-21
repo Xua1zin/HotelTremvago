@@ -45,7 +45,6 @@ public class ReservaService {
 
 
     public List<Integer> datasLivres(Long tipoQuartoId, int capacidade, int mes, int ano) {
-        LocalDate hoje = LocalDate.now();
         LocalDate inicioMes = LocalDate.of(ano, mes, 1);
         LocalDate fimMes = inicioMes.withDayOfMonth(inicioMes.lengthOfMonth());
 
@@ -70,11 +69,12 @@ public class ReservaService {
                 }
                 tempDate = tempDate.plusDays(1);
             }
-        }
+        } LocalDate hoje = LocalDate.now();
+
 
         List<QuartoEntity> quartosDisponiveis = quartoRepository.findByTipoQuartoECapacidade(tipoQuartoId, capacidade);
 
-        Set<Integer> diasLivres = new HashSet<>(diasMes);
+        List<Integer> diasLivres = new ArrayList<>(diasMes);
 
         for (Integer dia : diasMes) {
             LocalDate dataAtual = LocalDate.of(ano, mes, dia);
@@ -169,8 +169,10 @@ public class ReservaService {
     }
     public ReservaEntity removeHospedeFromReserva(Long reservaId, Long hospedeId) {
         try {
-            ReservaEntity reserva = reservaRepository.findById(reservaId).orElseThrow(() -> new RuntimeException("Reserva não encontrada"));
-            HospedeEntity hospede = hospedeRepository.findById(hospedeId).orElseThrow(() -> new RuntimeException("Hospede não encontrado"));
+            ReservaEntity reserva = reservaRepository.findById(reservaId)
+                    .orElseThrow(() -> new RuntimeException("Reserva não encontrada"));
+            HospedeEntity hospede = hospedeRepository.findById(hospedeId)
+                    .orElseThrow(() -> new RuntimeException("Hospede não encontrado"));
 
             reserva.getHospedes().remove(hospede);
             hospede.getReservas().remove(reserva);

@@ -40,11 +40,15 @@ public class UsuarioController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<UsuarioEntity> update(@RequestBody UsuarioEntity usuarioEntity, Long id){
-        try{
-            UsuarioEntity usuario = usuarioService.update(usuarioEntity, id);
-            return new ResponseEntity<>(usuario, HttpStatus.OK);
-        } catch(Exception e){
+    public ResponseEntity<UsuarioEntity> update(@RequestBody UsuarioEntity usuarioEntity, @PathVariable Long id) {
+        try {
+            UsuarioEntity updatedUsuario = usuarioService.update(usuarioEntity, id);
+            if (updatedUsuario != null) {
+                return new ResponseEntity<>(updatedUsuario, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }

@@ -1,10 +1,12 @@
 package com.HotelTremvago.HotelTremvago.controllers;
 
+import com.HotelTremvago.HotelTremvago.entities.HospedeEntity;
 import com.HotelTremvago.HotelTremvago.entities.QuartoEntity;
 import com.HotelTremvago.HotelTremvago.entities.ReservaEntity;
 import com.HotelTremvago.HotelTremvago.entities.ReservaStatus;
 import com.HotelTremvago.HotelTremvago.repositories.QuartoRepository;
 import com.HotelTremvago.HotelTremvago.repositories.ReservaRepository;
+import com.HotelTremvago.HotelTremvago.services.HospedeService;
 import com.HotelTremvago.HotelTremvago.services.QuartoService;
 import com.HotelTremvago.HotelTremvago.services.ReservaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +30,7 @@ public class ReservaController {
     @Autowired
     private QuartoService quartoService;
 
-    @PostMapping(value = "/criarReserva/{tipoQuartoId}/{capacidade}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/criarReserva/{tipoQuartoId}/{capacidade}")
     public ResponseEntity<ReservaEntity> save(@PathVariable long tipoQuartoId,
                                               @PathVariable int capacidade,
                                               @RequestBody ReservaEntity reservaEntity) {
@@ -87,17 +89,6 @@ public class ReservaController {
         }
     }
 
-
-    @PutMapping("/update/{id}")
-    public ResponseEntity<ReservaEntity> update(@RequestBody ReservaEntity reservaEntity, Long id){
-        try{
-            ReservaEntity reserva = reservaService.update(reservaEntity, id);
-            return new ResponseEntity<>(reserva, HttpStatus.OK);
-        } catch(Exception e){
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
-    }
-
     @GetMapping("findById/{id}")
     public ResponseEntity<ReservaEntity> findById(@PathVariable Long id){
         try{
@@ -126,7 +117,7 @@ public class ReservaController {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
-    @PostMapping("/removeHospede/{reservaId}/{hospedeId}")
+    @DeleteMapping("/removeHospede/{reservaId}/{hospedeId}")
     public ResponseEntity<ReservaEntity> removeHospedeFromReserva(@PathVariable Long reservaId, @PathVariable Long hospedeId) {
         try {
             ReservaEntity reserva = reservaService.removeHospedeFromReserva(reservaId, hospedeId);

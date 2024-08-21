@@ -27,18 +27,19 @@ public class TipoQuartoService {
             tipoQuartoRepository.deleteById(id);
             return "Tipo de quarto deletado";
         } catch (Exception e){
-            return "Nao foi possivel deletar tipo de quarto";
+            System.out.println("Não foi possível deletar tipo de quarto: " + e.getMessage());
+            return "Não foi possível deletar tipo de quarto";
         }
     }
 
-    public TipoQuartoEntity update(TipoQuartoEntity tipoQuartoEntity, Long id){
-        try{
-            tipoQuartoEntity.setId(id);
-            return tipoQuartoRepository.save(tipoQuartoEntity);
-        } catch(Exception e){
-            System.out.println("Nao foi possivel atualizar tipo de quarto: " + e.getMessage());
-            return new TipoQuartoEntity();
-        }
+    public TipoQuartoEntity update(TipoQuartoEntity updatedTipoQuarto, Long id) {
+        TipoQuartoEntity tipoQuarto = tipoQuartoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("TipoQuarto not found with id " + id));
+
+        tipoQuarto.setNome(updatedTipoQuarto.getNome());
+        tipoQuarto.setValor(updatedTipoQuarto.getValor());
+
+        return tipoQuartoRepository.save(tipoQuarto);
     }
 
     public TipoQuartoEntity findById(Long id){

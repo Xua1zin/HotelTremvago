@@ -1,6 +1,7 @@
 package com.HotelTremvago.HotelTremvago.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -49,7 +50,7 @@ public class HotelEntity {
     @NotBlank
     private String telefone;
 
-    @OneToMany(mappedBy = "hotel")
+    @OneToMany(mappedBy = "hotel", cascade = CascadeType.REMOVE)
     @JsonIgnoreProperties("hotel")
     private List<QuartoEntity> quartos;
 
@@ -58,8 +59,9 @@ public class HotelEntity {
     @JsonIgnoreProperties("hotelCidades")
     private CidadeEntity cidade;
 
-    @ManyToMany(mappedBy = "hoteis")
-    @JsonIgnoreProperties("hoteis")
+    @ManyToMany(mappedBy = "hoteis", cascade = CascadeType.REMOVE)
+    @JsonIgnoreProperties("{hoteis, reservas}")
+    @JsonIgnore
     private List<ReservaEntity> reservas;
 }
 

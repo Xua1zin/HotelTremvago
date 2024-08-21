@@ -44,5 +44,6 @@ public class QuartoEntity {
     private HotelEntity hotel;
 
     @OneToMany(mappedBy = "quarto")
+    @JsonIgnore
     private List<HospedeEntity> hospedes;
 }
