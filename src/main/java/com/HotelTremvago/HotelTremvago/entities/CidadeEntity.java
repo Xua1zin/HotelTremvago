@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "cidade")
+@Table(name = "cidade", uniqueConstraints = {@UniqueConstraint(columnNames = {"cidade", "estado"})})
 public class CidadeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +24,6 @@ public class CidadeEntity {
 
     @NotNull
     @NotBlank
-    @Column(unique = true)
     private String cidade;
 
     @NotNull

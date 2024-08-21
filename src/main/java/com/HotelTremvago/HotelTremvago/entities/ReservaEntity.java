@@ -1,6 +1,5 @@
 package com.HotelTremvago.HotelTremvago.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -31,8 +30,9 @@ public class ReservaEntity {
     @NotNull
     private Date dataFinal;
 
-    @Enumerated(EnumType.STRING)
-    private ReservaStatus status;
+    @NotNull
+    @NotBlank
+    private String status;
 
     private Double total;
 
@@ -62,7 +62,6 @@ public class ReservaEntity {
             inverseJoinColumns = @JoinColumn(name = "hotel_id")
     )
     @JsonIgnoreProperties("reservas")
-    @JsonBackReference
     private List<HotelEntity> hoteis;
 }
 

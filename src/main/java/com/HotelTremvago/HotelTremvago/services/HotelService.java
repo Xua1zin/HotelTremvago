@@ -22,6 +22,9 @@ public class HotelService {
             return new HotelEntity();
         }
     }
+    public List<HotelEntity> saveAll(List<HotelEntity> hotelEntities) {
+        return hotelRepository.saveAll(hotelEntities);
+    }
 
     public String delete(Long id){
         try {

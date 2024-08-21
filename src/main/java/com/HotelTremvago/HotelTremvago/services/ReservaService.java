@@ -10,9 +10,15 @@ import com.HotelTremvago.HotelTremvago.repositories.ReservaRepository;
 import com.HotelTremvago.HotelTremvago.repositories.TipoQuartoRepository;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -100,6 +106,20 @@ public class ReservaService {
         }
         return true;
     }
+    @PutMapping("/checkin/{id}")
+    public ResponseEntity<ReservaEntity> realizarCheckIn(@PathVariable Long id) {
+        try {
+            ReservaEntity reserva = reservaService.realizarCheckIn(id);
+            return new ResponseEntity<>(reserva, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        } catch (IllegalStateException e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
 
     public ReservaEntity save(ReservaEntity reservaEntity) {
@@ -148,7 +168,11 @@ public class ReservaService {
             System.out.println("Erro ao encontrar lista de reserva: " + e.getMessage());
             return Collections.emptyList();
         }
-    }
+        }
+
+
+
+
     public ReservaEntity addHospedeToReserva(Long reservaId, Long hospedeId) {
         try {
             ReservaEntity reserva = reservaRepository.findById(reservaId).orElseThrow(() -> new RuntimeException("Reserva não encontrada"));

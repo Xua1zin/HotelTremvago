@@ -40,7 +40,7 @@ public class UsuarioController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<UsuarioEntity> update(@RequestBody UsuarioEntity usuarioEntity, Long id){
+    public ResponseEntity<UsuarioEntity> update(@RequestBody UsuarioEntity usuarioEntity,   Long id){
         try{
             UsuarioEntity usuario = usuarioService.update(usuarioEntity, id);
             return new ResponseEntity<>(usuario, HttpStatus.OK);
