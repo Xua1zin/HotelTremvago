@@ -9,15 +9,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/reserva")
 public class ReservaController {
     @Autowired
     private ReservaService reservaService;
+    @Autowired
+    private ReservaRepository reservaRepository;
 
     @PostMapping("/criarReserva")
     public ResponseEntity<ReservaEntity> save(@RequestBody ReservaEntity reservaEntity) {
@@ -29,28 +30,38 @@ public class ReservaController {
         }
     }
 
-    @GetMapping("/reserva/{quartoId}/{mes}/{ano}")
-    public ResponseEntity<List<LocalDate>> listaDiasDisponiveisPorMes(
+    @GetMapping("/consultarReserva/{quartoId}/{mes}/{ano}")
+    public ResponseEntity<List<Integer>> listaDiasDisponiveisPorMes(
             @PathVariable Long quartoId,
             @PathVariable int mes,
             @PathVariable int ano) {
         try {
-            List<LocalDate> datasDisponiveis = reservaService.calcularData(quartoId, mes, ano);
+            List<Integer> datasDisponiveis = reservaService.datasLivres(quartoId, mes, ano);
             return new ResponseEntity<>(datasDisponiveis, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id) {
+    @PutMapping("/cancela/{id}")
+    public ResponseEntity<ReservaEntity> cancela(@PathVariable Long id) {
         try {
-            String reserva = reservaService.delete(id);
-            return new ResponseEntity<>(reserva, HttpStatus.OK);
-        } catch(Exception e){
+            Optional<ReservaEntity> optionalReserva = reservaRepository.findById(id);
+            if (optionalReserva.isEmpty()) {
+                return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            }
+
+            ReservaEntity reservaEntity = optionalReserva.get();
+            reservaEntity.setStatus(ReservaStatus.valueOf("CANCELADO"));
+
+            ReservaEntity cancelado = reservaRepository.save(reservaEntity);
+
+            return new ResponseEntity<>(cancelado, HttpStatus.OK);
+        } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
+
 
     @PutMapping("/update/{id}")
     public ResponseEntity<ReservaEntity> update(@RequestBody ReservaEntity reservaEntity, Long id){

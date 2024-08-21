@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ReservaService {
@@ -42,29 +43,44 @@ public class ReservaService {
         return dias * diaria;
     }
 
-    public List<LocalDate> calcularData(Long quartoId, int mes, int ano) {
+
+    public List<Integer> datasLivres(Long quartoId, int mes, int ano) {
+        LocalDate hoje = LocalDate.now();
+        LocalDate ontem = hoje.minusDays(1);
+
         LocalDate inicioMes = LocalDate.of(ano, mes, 1);
         LocalDate fimMes = inicioMes.withDayOfMonth(inicioMes.lengthOfMonth());
-        List<int> diasMes = new ArrayList<>();
-        for(int i = 0, i < fimMes; i++){
-            diasMes.add(i);
-        }
-        List<int> reservados = new ArrayList<>();
-        for(ReservaEntity x : Dado){
-        var range = x.getDataInicio() - x.getDataFinal();
-            for(int y; y < range; y++){
-                reservados.add(x.getDataInicio() - y);
-            }
-        }
-        List<int> datasLivres = new ArrayList<>();
-        for(int x : diasMes){
-            for(int y : reservados){
-                if(x != y){
-                    datasLivres.add(x);
+
+        List<Integer> diasMes = inicioMes.datesUntil(fimMes.plusDays(1))
+                .map(LocalDate::getDayOfMonth)
+                .collect(Collectors.toList());
+
+        List<ReservaEntity> reservasFiltradas = reservaRepository.findByQuartoStatusData(quartoId, mes, ano);
+
+        List<Integer> reservados = new ArrayList<>();
+        for (ReservaEntity reserva : reservasFiltradas) {
+            LocalDate startDate = reserva.getDataInicio().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate endDate = reserva.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+            LocalDate inicioIntervalo = startDate.isBefore(inicioMes) ? inicioMes : startDate;
+            LocalDate fimIntervalo = endDate.isAfter(fimMes) ? fimMes : endDate;
+
+            LocalDate tempDate = inicioIntervalo;
+            while (!tempDate.isAfter(fimIntervalo)) {
+                if (tempDate.getMonthValue() == mes && tempDate.getYear() == ano) {
+                    reservados.add(tempDate.getDayOfMonth());
                 }
+                tempDate = tempDate.plusDays(1);
             }
         }
+
+        List<Integer> datasLivres = diasMes.stream()
+                .filter(dia -> !reservados.contains(dia) && LocalDate.of(ano, mes, dia).isAfter(ontem))
+                .collect(Collectors.toList());
+
+        return datasLivres;
     }
+
 
     public ReservaEntity save(ReservaEntity reservaEntity) {
         try {
