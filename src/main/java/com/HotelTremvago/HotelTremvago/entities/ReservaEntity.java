@@ -36,6 +36,7 @@ public class ReservaEntity {
     @Enumerated(EnumType.STRING)
     private ReservaStatus status;
 
+    @Setter
     @Temporal(TemporalType.TIMESTAMP)
     private Date dataCheckIn;
 
@@ -69,5 +70,9 @@ public class ReservaEntity {
     @JsonIgnoreProperties("reservas")
     @JsonIgnore
     private List<HotelEntity> hoteis;
+
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dataCheckOut;
 }
 

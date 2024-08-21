@@ -193,11 +193,28 @@ public class ReservaService {
         }
 
         if (reserva.getStatus() != ReservaStatus.RESERVADO) {
-            throw new IllegalStateException("Apenas reservas com status RESERVADO podem ser feitos check-in");
+            throw new IllegalStateException("Apenas reservas com status RESERVADO podem ser check-in");
         }
 
         reserva.setStatus(ReservaStatus.OCUPADO);
         reserva.setDataCheckIn(new Date());
+
+        return reservaRepository.save(reserva);
+    }
+    public ReservaEntity realizarCheckOut(Long id) {
+        ReservaEntity reserva = reservaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Reserva não encontrada"));
+
+        if (reserva.getStatus() == ReservaStatus.CANCELADO) {
+            throw new IllegalStateException("Não é possível fazer check-out em uma reserva cancelada");
+        }
+
+        if (reserva.getStatus() != ReservaStatus.OCUPADO) {
+            throw new IllegalStateException("Apenas reservas com status OCUPADO podem ser check-out");
+        }
+
+        reserva.setStatus(ReservaStatus.RESERVADO);
+        reserva.setDataCheckOut(new Date());
 
         return reservaRepository.save(reserva);
     }
