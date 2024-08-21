@@ -1,7 +1,9 @@
 package com.HotelTremvago.HotelTremvago.controllers;
 
+import com.HotelTremvago.HotelTremvago.entities.QuartoEntity;
 import com.HotelTremvago.HotelTremvago.entities.ReservaEntity;
 import com.HotelTremvago.HotelTremvago.entities.ReservaStatus;
+import com.HotelTremvago.HotelTremvago.repositories.QuartoRepository;
 import com.HotelTremvago.HotelTremvago.repositories.ReservaRepository;
 import com.HotelTremvago.HotelTremvago.services.ReservaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,35 +21,45 @@ public class ReservaController {
     private ReservaService reservaService;
     @Autowired
     private ReservaRepository reservaRepository;
+    @Autowired
+    private QuartoRepository quartoRepository;
 
     @PostMapping("/criarReserva")
     public ResponseEntity<ReservaEntity> save(@RequestBody ReservaEntity reservaEntity) {
         try {
+            long idQuarto = reservaEntity.getQuarto().getId();
+            Optional<QuartoEntity> quartoEntity = quartoRepository.findById(idQuarto);
+            int capacidade = quartoEntity.get().getCapacidade();
+
             boolean dataVerificada = reservaService.verificaDisponibilidade(
-                    reservaEntity.getQuarto().getId(),
+                    idQuarto,
+                    capacidade,
                     reservaEntity.getDataInicio(),
                     reservaEntity.getDataFinal());
-            if(dataVerificada){
+            if (dataVerificada) {
                 ReservaEntity reserva = reservaService.save(reservaEntity);
                 return new ResponseEntity<>(reserva, HttpStatus.OK);
-            } else{
-                System.out.println("Datas indisponiveis");
-                return new ResponseEntity<>(reservaEntity, HttpStatus.BAD_REQUEST);
+            } else {
+                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
             }
         } catch (Exception e) {
-            return new ResponseEntity<>(reservaEntity, HttpStatus.BAD_REQUEST);
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 
-    @GetMapping("/consultarReserva/{quartoId}/{mes}/{ano}")
+
+    @GetMapping("/consultarReserva/{tipoQuartoId}/{capacidade}/{mes}/{ano}")
     public ResponseEntity<List<Integer>> listaDiasDisponiveisPorMes(
-            @PathVariable Long quartoId,
+            @PathVariable Long tipoQuartoId,
+            @PathVariable int capacidade,
             @PathVariable int mes,
             @PathVariable int ano) {
         try {
-            List<Integer> datasDisponiveis = reservaService.datasLivres(quartoId, mes, ano);
+            List<Integer> datasDisponiveis = reservaService.datasLivres(tipoQuartoId, capacidade, mes, ano);
             return new ResponseEntity<>(datasDisponiveis, HttpStatus.OK);
         } catch (Exception e) {
+            e.printStackTrace(); // Log de stack trace para diagnóstico
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

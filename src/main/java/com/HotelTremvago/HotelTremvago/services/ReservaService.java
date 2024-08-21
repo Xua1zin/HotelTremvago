@@ -45,7 +45,7 @@ public class ReservaService {
     }
 
 
-    public List<Integer> datasLivres(Long quartoId, int mes, int ano) {
+    public List<Integer> datasLivres(Long tipoQuartoId, int capacidade, int mes, int ano) {
         LocalDate hoje = LocalDate.now();
         LocalDate ontem = hoje.minusDays(1);
 
@@ -56,7 +56,7 @@ public class ReservaService {
                 .map(LocalDate::getDayOfMonth)
                 .collect(Collectors.toList());
 
-        List<ReservaEntity> reservasFiltradas = reservaRepository.findByQuartoStatusData(quartoId, mes, ano);
+        List<ReservaEntity> reservasFiltradas = reservaRepository.findByTipoQuartoCapacidadeStatusData(tipoQuartoId, capacidade, mes, ano);
 
         List<Integer> reservados = new ArrayList<>();
         for (ReservaEntity reserva : reservasFiltradas) {
@@ -82,7 +82,7 @@ public class ReservaService {
         return datasLivres;
     }
 
-    public boolean verificaDisponibilidade(Long quartoId, Date dataInicio, Date dataFinal) {
+    public boolean verificaDisponibilidade(Long quartoId, int capacidade, Date dataInicio, Date dataFinal) {
         LocalDate localDataInicio = dataInicio.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         LocalDate localDataFinal = dataFinal.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
@@ -91,7 +91,7 @@ public class ReservaService {
             int mes = data.getMonthValue();
             int ano = data.getYear();
 
-            List<Integer> datasDisponiveis = datasLivres(quartoId, mes, ano);
+            List<Integer> datasDisponiveis = datasLivres(quartoId, capacidade, mes, ano);
 
             if (!datasDisponiveis.contains(data.getDayOfMonth())) {
                 return false;
