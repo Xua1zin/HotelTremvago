@@ -2,6 +2,7 @@ package com.HotelTremvago.HotelTremvago.services;
 
 import com.HotelTremvago.HotelTremvago.entities.HotelEntity;
 import com.HotelTremvago.HotelTremvago.entities.QuartoEntity;
+import com.HotelTremvago.HotelTremvago.entities.ReservaEntity;
 import com.HotelTremvago.HotelTremvago.entities.TipoQuartoEntity;
 import com.HotelTremvago.HotelTremvago.repositories.HotelRepository;
 import com.HotelTremvago.HotelTremvago.repositories.QuartoRepository;
@@ -22,6 +23,8 @@ public class QuartoService {
     private TipoQuartoRepository tipoQuartoRepository;
     @Autowired
     ReservaService reservaService;
+    @Autowired
+    ReservaRepository reservaRepository;
 
     public QuartoEntity criarQuarto(QuartoEntity quartoEntity){
         try {
@@ -46,23 +49,23 @@ public class QuartoService {
         LocalDate localDataFinal = dataFinal.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
         List<QuartoEntity> quartos = quartoRepository.findByTipoQuartoECapacidade(tipoQuartoId, capacidade);
-
         List<QuartoEntity> quartosDisponiveis = new ArrayList<>();
 
         for (QuartoEntity quarto : quartos) {
             boolean disponivel = true;
 
-            LocalDate data = localDataInicio;
-            while (!data.isAfter(localDataFinal)) {
-                int mes = data.getMonthValue();
-                int ano = data.getYear();
-                List<Integer> datasDisponiveis = reservaService.datasLivres(tipoQuartoId, capacidade, mes, ano);
+            List<ReservaEntity> reservas = reservaRepository.findByTipoQuartoCapacidadeStatusData(
+                    tipoQuartoId, capacidade, dataInicio, dataFinal);
 
-                if (!datasDisponiveis.contains(data.getDayOfMonth())) {
+            for (ReservaEntity reserva : reservas) {
+                LocalDate reservaInicio = reserva.getDataInicio().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                LocalDate reservaFinal = reserva.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+                if (quarto.getId().equals(reserva.getQuarto().getId()) &&
+                        !(localDataFinal.isBefore(reservaInicio) || localDataInicio.isAfter(reservaFinal))) {
                     disponivel = false;
                     break;
                 }
-                data = data.plusDays(1);
             }
             if (disponivel) {
                 quartosDisponiveis.add(quarto);
@@ -70,6 +73,8 @@ public class QuartoService {
         }
         return quartosDisponiveis;
     }
+
+
 
 
     public String delete(Long id){
