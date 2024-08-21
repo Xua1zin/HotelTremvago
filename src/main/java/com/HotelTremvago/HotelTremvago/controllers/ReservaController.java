@@ -23,10 +23,19 @@ public class ReservaController {
     @PostMapping("/criarReserva")
     public ResponseEntity<ReservaEntity> save(@RequestBody ReservaEntity reservaEntity) {
         try {
-            ReservaEntity reserva = reservaService.save(reservaEntity);
-            return new ResponseEntity<>(reserva, HttpStatus.OK);
+            boolean dataVerificada = reservaService.verificaDisponibilidade(
+                    reservaEntity.getQuarto().getId(),
+                    reservaEntity.getDataInicio(),
+                    reservaEntity.getDataFinal());
+            if(dataVerificada){
+                ReservaEntity reserva = reservaService.save(reservaEntity);
+                return new ResponseEntity<>(reserva, HttpStatus.OK);
+            } else{
+                System.out.println("Datas indisponiveis");
+                return new ResponseEntity<>(reservaEntity, HttpStatus.BAD_REQUEST);
+            }
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(reservaEntity, HttpStatus.BAD_REQUEST);
         }
     }
 

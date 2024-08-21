@@ -8,6 +8,7 @@ import com.HotelTremvago.HotelTremvago.repositories.HospedeRepository;
 import com.HotelTremvago.HotelTremvago.repositories.QuartoRepository;
 import com.HotelTremvago.HotelTremvago.repositories.ReservaRepository;
 import com.HotelTremvago.HotelTremvago.repositories.TipoQuartoRepository;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -59,11 +60,11 @@ public class ReservaService {
 
         List<Integer> reservados = new ArrayList<>();
         for (ReservaEntity reserva : reservasFiltradas) {
-            LocalDate startDate = reserva.getDataInicio().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            LocalDate endDate = reserva.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate inicioData = reserva.getDataInicio().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate fimData = reserva.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
-            LocalDate inicioIntervalo = startDate.isBefore(inicioMes) ? inicioMes : startDate;
-            LocalDate fimIntervalo = endDate.isAfter(fimMes) ? fimMes : endDate;
+            LocalDate inicioIntervalo = inicioData.isBefore(inicioMes) ? inicioMes : inicioData;
+            LocalDate fimIntervalo = fimData.isAfter(fimMes) ? fimMes : fimData;
 
             LocalDate tempDate = inicioIntervalo;
             while (!tempDate.isAfter(fimIntervalo)) {
@@ -79,6 +80,25 @@ public class ReservaService {
                 .collect(Collectors.toList());
 
         return datasLivres;
+    }
+
+    public boolean verificaDisponibilidade(Long quartoId, Date dataInicio, Date dataFinal) {
+        LocalDate localDataInicio = dataInicio.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate localDataFinal = dataFinal.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        LocalDate data = localDataInicio;
+        while (!data.isAfter(localDataFinal)) {
+            int mes = data.getMonthValue();
+            int ano = data.getYear();
+
+            List<Integer> datasDisponiveis = datasLivres(quartoId, mes, ano);
+
+            if (!datasDisponiveis.contains(data.getDayOfMonth())) {
+                return false;
+            }
+            data = data.plusDays(1);
+        }
+        return true;
     }
 
 

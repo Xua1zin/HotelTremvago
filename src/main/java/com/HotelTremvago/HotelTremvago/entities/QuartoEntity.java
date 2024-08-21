@@ -1,5 +1,6 @@
 package com.HotelTremvago.HotelTremvago.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
@@ -30,7 +31,6 @@ public class QuartoEntity {
     private int capacidade;
 
     @OneToMany(mappedBy = "quarto")
-    @JsonIgnore
     private List<ReservaEntity> reservas;
 
     @ManyToOne
@@ -44,6 +44,6 @@ public class QuartoEntity {
     private HotelEntity hotel;
 
     @OneToMany(mappedBy = "quarto")
-    @JsonIgnore
+    @JsonBackReference
     private List<HospedeEntity> hospedes;
 }
