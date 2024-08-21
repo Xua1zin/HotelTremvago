@@ -30,6 +30,4 @@ public class CidadeEntity {
     @NotNull
     @NotBlank
     private String estado;
-
-
 }

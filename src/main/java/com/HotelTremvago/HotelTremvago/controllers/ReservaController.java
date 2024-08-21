@@ -5,9 +5,11 @@ import com.HotelTremvago.HotelTremvago.entities.ReservaEntity;
 import com.HotelTremvago.HotelTremvago.entities.ReservaStatus;
 import com.HotelTremvago.HotelTremvago.repositories.QuartoRepository;
 import com.HotelTremvago.HotelTremvago.repositories.ReservaRepository;
+import com.HotelTremvago.HotelTremvago.services.QuartoService;
 import com.HotelTremvago.HotelTremvago.services.ReservaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,28 +25,31 @@ public class ReservaController {
     private ReservaRepository reservaRepository;
     @Autowired
     private QuartoRepository quartoRepository;
+    @Autowired
+    private QuartoService quartoService;
 
-    @PostMapping("/criarReserva")
-    public ResponseEntity<ReservaEntity> save(@RequestBody ReservaEntity reservaEntity) {
+    @PostMapping(value = "/criarReserva/{tipoQuartoId}/{capacidade}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ReservaEntity> save(@PathVariable long tipoQuartoId,
+                                              @PathVariable int capacidade,
+                                              @RequestBody ReservaEntity reservaEntity) {
         try {
-            long idQuarto = reservaEntity.getQuarto().getId();
-            Optional<QuartoEntity> quartoEntity = quartoRepository.findById(idQuarto);
-            int capacidade = quartoEntity.get().getCapacidade();
-
-            boolean dataVerificada = reservaService.verificaDisponibilidade(
-                    idQuarto,
+            List<QuartoEntity> quartosDisponiveis = quartoService.quartosDisponiveis(
+                    tipoQuartoId,
                     capacidade,
                     reservaEntity.getDataInicio(),
                     reservaEntity.getDataFinal());
-            if (dataVerificada) {
-                ReservaEntity reserva = reservaService.save(reservaEntity);
-                return new ResponseEntity<>(reserva, HttpStatus.OK);
-            } else {
+
+            if (quartosDisponiveis.isEmpty()) {
                 return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
             }
+
+            QuartoEntity quartoEntity = quartosDisponiveis.get(0);
+            reservaEntity.setQuarto(quartoEntity);
+
+            ReservaEntity reserva = reservaService.save(reservaEntity);
+            return new ResponseEntity<>(reserva, HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -59,7 +64,6 @@ public class ReservaController {
             List<Integer> datasDisponiveis = reservaService.datasLivres(tipoQuartoId, capacidade, mes, ano);
             return new ResponseEntity<>(datasDisponiveis, HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace(); // Log de stack trace para diagnóstico
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

@@ -51,12 +51,10 @@ public class HospedeEntity {
     @ManyToOne
     @JoinColumn(name = "quarto_id")
     @JsonIgnoreProperties("hospedes")
-    @JsonBackReference
     private QuartoEntity quarto;
 
     @ManyToMany(mappedBy = "hospedes")
     @JsonIgnoreProperties("hospedes")
-    @JsonBackReference
     private List<ReservaEntity> reservas;
 }
 

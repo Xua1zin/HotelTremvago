@@ -44,6 +44,5 @@ public class QuartoEntity {
     private HotelEntity hotel;
 
     @OneToMany(mappedBy = "quarto")
-    @JsonBackReference
     private List<HospedeEntity> hospedes;
 }

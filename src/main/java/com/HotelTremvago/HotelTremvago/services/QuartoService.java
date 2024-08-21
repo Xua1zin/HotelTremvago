@@ -5,13 +5,14 @@ import com.HotelTremvago.HotelTremvago.entities.QuartoEntity;
 import com.HotelTremvago.HotelTremvago.entities.TipoQuartoEntity;
 import com.HotelTremvago.HotelTremvago.repositories.HotelRepository;
 import com.HotelTremvago.HotelTremvago.repositories.QuartoRepository;
+import com.HotelTremvago.HotelTremvago.repositories.ReservaRepository;
 import com.HotelTremvago.HotelTremvago.repositories.TipoQuartoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.*;
 
 @Service
 public class QuartoService {
@@ -19,7 +20,8 @@ public class QuartoService {
     private QuartoRepository quartoRepository;
     @Autowired
     private TipoQuartoRepository tipoQuartoRepository;
-
+    @Autowired
+    ReservaService reservaService;
 
     public QuartoEntity criarQuarto(QuartoEntity quartoEntity){
         try {
@@ -38,6 +40,37 @@ public class QuartoService {
             return null;
         }
     }
+
+    public List<QuartoEntity> quartosDisponiveis(Long tipoQuartoId, int capacidade, Date dataInicio, Date dataFinal) {
+        LocalDate localDataInicio = dataInicio.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate localDataFinal = dataFinal.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        List<QuartoEntity> quartos = quartoRepository.findByTipoQuartoECapacidade(tipoQuartoId, capacidade);
+
+        List<QuartoEntity> quartosDisponiveis = new ArrayList<>();
+
+        for (QuartoEntity quarto : quartos) {
+            boolean disponivel = true;
+
+            LocalDate data = localDataInicio;
+            while (!data.isAfter(localDataFinal)) {
+                int mes = data.getMonthValue();
+                int ano = data.getYear();
+                List<Integer> datasDisponiveis = reservaService.datasLivres(tipoQuartoId, capacidade, mes, ano);
+
+                if (!datasDisponiveis.contains(data.getDayOfMonth())) {
+                    disponivel = false;
+                    break;
+                }
+                data = data.plusDays(1);
+            }
+            if (disponivel) {
+                quartosDisponiveis.add(quarto);
+            }
+        }
+        return quartosDisponiveis;
+    }
+
 
     public String delete(Long id){
         try {

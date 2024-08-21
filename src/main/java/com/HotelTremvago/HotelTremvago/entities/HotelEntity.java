@@ -60,7 +60,6 @@ public class HotelEntity {
 
     @ManyToMany(mappedBy = "hoteis")
     @JsonIgnoreProperties("hoteis")
-    @JsonBackReference
     private List<ReservaEntity> reservas;
 }
 

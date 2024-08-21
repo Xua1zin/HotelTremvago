@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Date;
 import java.util.List;
 
 public interface ReservaRepository extends JpaRepository<ReservaEntity, Long> {
@@ -12,10 +13,9 @@ public interface ReservaRepository extends JpaRepository<ReservaEntity, Long> {
             "FROM reserva r " +
             "JOIN quarto q ON r.quarto_id = q.id " +
             "WHERE q.tipo_quarto_id = ?1 " +
+            "AND q.capacidade >= ?2 " +
             "AND r.status IN ('OCUPADO', 'RESERVADO') " +
-            "AND q.capacidade = ?2 " +
-            "AND (EXTRACT(MONTH FROM r.data_inicio) = ?3 OR EXTRACT(MONTH FROM r.data_final) = ?3) " +
-            "AND (EXTRACT(YEAR FROM r.data_inicio) = ?4 OR EXTRACT(YEAR FROM r.data_final) = ?4)",
+            "AND (r.data_inicio <= ?4 AND r.data_final >= ?3)",
             nativeQuery = true)
-    List<ReservaEntity> findByTipoQuartoCapacidadeStatusData(Long tipoQuartoId, int capacidade, int mes, int ano);
+    List<ReservaEntity> findByTipoQuartoCapacidadeStatusData(Long tipoQuartoId, int capacidade, Date dataInicio, Date dataFinal);
 }
