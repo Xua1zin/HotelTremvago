@@ -106,20 +106,24 @@ public class ReservaService {
         }
         return true;
     }
-    @PutMapping("/checkin/{id}")
-    public ResponseEntity<ReservaEntity> realizarCheckIn(@PathVariable Long id) {
-        try {
-            ReservaEntity reserva = reservaService.realizarCheckIn(id);
-            return new ResponseEntity<>(reserva, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        } catch (IllegalStateException e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+
+    public ReservaEntity realizarCheckIn(Long id) {
+    ReservaEntity reserva = reservaRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Reserva não encontrada"));
+
+    if (reserva.getStatus() == ReservaStatus.CANCELADO) {
+        throw new IllegalStateException("Não é possível fazer check-in em uma reserva cancelada");
     }
 
+    if (reserva.getStatus() != ReservaStatus.RESERVADO) {
+        throw new IllegalStateException("Apenas reservas com status RESERVADO podem ser check-in");
+    }
+
+    reserva.setStatus(ReservaStatus.OCUPADO);
+    reserva.setDataCheckIn(new Date()); 
+
+    return reservaRepository.save(reserva);
+}
 
 
     public ReservaEntity save(ReservaEntity reservaEntity) {

@@ -30,6 +30,13 @@ public class ReservaEntity {
     @NotNull
     private Date dataFinal;
 
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private ReservaStatus status;
+    
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dataCheckIn;
+
     @NotNull
     @NotBlank
     private String status;
