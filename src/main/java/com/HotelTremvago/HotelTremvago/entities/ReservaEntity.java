@@ -28,15 +28,16 @@ public class ReservaEntity {
     private Long id;
 
     @NotNull
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     private Date dataInicio;
 
     @NotNull
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     private Date dataFinal;
 
     @Enumerated(EnumType.STRING)
     private ReservaStatus status;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dataCheckIn;
 
     private Double total;
 

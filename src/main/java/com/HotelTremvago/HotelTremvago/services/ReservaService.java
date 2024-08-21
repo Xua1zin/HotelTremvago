@@ -1,9 +1,6 @@
 package com.HotelTremvago.HotelTremvago.services;
 
-import com.HotelTremvago.HotelTremvago.entities.HospedeEntity;
-import com.HotelTremvago.HotelTremvago.entities.QuartoEntity;
-import com.HotelTremvago.HotelTremvago.entities.ReservaEntity;
-import com.HotelTremvago.HotelTremvago.entities.TipoQuartoEntity;
+import com.HotelTremvago.HotelTremvago.entities.*;
 import com.HotelTremvago.HotelTremvago.repositories.HospedeRepository;
 import com.HotelTremvago.HotelTremvago.repositories.QuartoRepository;
 import com.HotelTremvago.HotelTremvago.repositories.ReservaRepository;
@@ -185,6 +182,24 @@ public class ReservaService {
             System.out.println("Não foi possível remover o hóspede da reserva: " + e.getMessage());
             return null;
         }
+    }
+
+    public ReservaEntity realizarCheckIn(Long id) {
+        ReservaEntity reserva = reservaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Reserva não encontrada"));
+
+        if (reserva.getStatus() == ReservaStatus.CANCELADO) {
+            throw new IllegalStateException("Não é possível fazer check-in em uma reserva cancelada");
+        }
+
+        if (reserva.getStatus() != ReservaStatus.RESERVADO) {
+            throw new IllegalStateException("Apenas reservas com status RESERVADO podem ser feitos check-in");
+        }
+
+        reserva.setStatus(ReservaStatus.OCUPADO);
+        reserva.setDataCheckIn(new Date());
+
+        return reservaRepository.save(reserva);
     }
 }
 

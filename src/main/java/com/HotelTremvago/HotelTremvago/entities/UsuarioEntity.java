@@ -31,7 +31,6 @@ public class UsuarioEntity {
     private String nome;
 
     @NotNull
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     private Date dataNascimento;
 
     @NotNull

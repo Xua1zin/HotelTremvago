@@ -126,4 +126,18 @@ public class ReservaController {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
+
+    @PutMapping("/checkin/{id}")
+    public ResponseEntity<ReservaEntity> realizarCheckIn(@PathVariable Long id) {
+        try {
+            ReservaEntity reserva = reservaService.realizarCheckIn(id);
+            return new ResponseEntity<>(reserva, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        } catch (IllegalStateException e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

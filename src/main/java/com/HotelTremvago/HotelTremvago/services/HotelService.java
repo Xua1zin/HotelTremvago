@@ -36,6 +36,10 @@ public class HotelService {
         }
     }
 
+    public List<HotelEntity> saveAll(List<HotelEntity> hotelEntities) {
+        return hotelRepository.saveAll(hotelEntities);
+    }
+
     public HotelEntity update(HotelEntity updatedHotel, Long id) {
         HotelEntity hotel = hotelRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Hotel not found with id " + id));

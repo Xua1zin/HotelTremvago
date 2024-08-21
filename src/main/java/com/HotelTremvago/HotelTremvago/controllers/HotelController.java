@@ -78,4 +78,13 @@ public class HotelController {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
+    @PostMapping("/saveAll")
+    public ResponseEntity<List<HotelEntity>> saveAll(@RequestBody List<HotelEntity> hotelEntities){
+        try {
+            List<HotelEntity> hotels = hotelService.saveAll(hotelEntities);
+            return new ResponseEntity<>(hotels, HttpStatus.OK);
+        } catch(Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
 }

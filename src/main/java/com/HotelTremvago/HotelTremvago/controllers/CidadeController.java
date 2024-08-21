@@ -39,26 +39,6 @@ public class CidadeController {
         }
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id) {
-        try {
-            String result = cidadeService.delete(id);
-            return new ResponseEntity<>(result, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Não foi possível deletar a cidade", HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @PutMapping("/update/{id}")
-    public ResponseEntity<CidadeEntity> update(@RequestBody CidadeEntity cidadeEntity, @PathVariable Long id) {
-        try {
-            CidadeEntity updatedCidade = cidadeService.update(cidadeEntity, id);
-            return new ResponseEntity<>(updatedCidade, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
-    }
-
     @GetMapping("/findById/{id}")
     public ResponseEntity<CidadeEntity> findById(@PathVariable Long id) {
         try {

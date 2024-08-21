@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "cidade")
+@Table(name = "cidade", uniqueConstraints = {@UniqueConstraint(columnNames = {"cidade", "estado"})})
 public class CidadeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
