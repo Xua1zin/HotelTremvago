@@ -2,6 +2,7 @@ package com.HotelTremvago.HotelTremvago.controllers;
 
 import com.HotelTremvago.HotelTremvago.entities.ReservaEntity;
 import com.HotelTremvago.HotelTremvago.entities.ReservaStatus;
+import com.HotelTremvago.HotelTremvago.repositories.ReservaRepository;
 import com.HotelTremvago.HotelTremvago.services.ReservaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,13 +19,26 @@ public class ReservaController {
     @Autowired
     private ReservaService reservaService;
 
-    @PostMapping("/reserva")
+    @PostMapping("/criarReserva")
     public ResponseEntity<ReservaEntity> save(@RequestBody ReservaEntity reservaEntity) {
         try {
             ReservaEntity reserva = reservaService.save(reservaEntity);
             return new ResponseEntity<>(reserva, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/reserva/{quartoId}/{mes}/{ano}")
+    public ResponseEntity<List<LocalDate>> listaDiasDisponiveisPorMes(
+            @PathVariable Long quartoId,
+            @PathVariable int mes,
+            @PathVariable int ano) {
+        try {
+            List<LocalDate> datasDisponiveis = reservaService.calcularData(quartoId, mes, ano);
+            return new ResponseEntity<>(datasDisponiveis, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

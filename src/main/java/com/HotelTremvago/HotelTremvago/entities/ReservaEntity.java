@@ -30,9 +30,8 @@ public class ReservaEntity {
     @NotNull
     private Date dataFinal;
 
-    @NotNull
-    @NotBlank
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private ReservaStatus status;
 
     private Double total;
 

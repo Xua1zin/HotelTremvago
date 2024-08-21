@@ -14,9 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ReservaService {
@@ -44,6 +42,29 @@ public class ReservaService {
         return dias * diaria;
     }
 
+    public List<LocalDate> calcularData(Long quartoId, int mes, int ano) {
+        LocalDate inicioMes = LocalDate.of(ano, mes, 1);
+        LocalDate fimMes = inicioMes.withDayOfMonth(inicioMes.lengthOfMonth());
+        List<int> diasMes = new ArrayList<>();
+        for(int i = 0, i < fimMes; i++){
+            diasMes.add(i);
+        }
+        List<int> reservados = new ArrayList<>();
+        for(ReservaEntity x : Dado){
+        var range = x.getDataInicio() - x.getDataFinal();
+            for(int y; y < range; y++){
+                reservados.add(x.getDataInicio() - y);
+            }
+        }
+        List<int> datasLivres = new ArrayList<>();
+        for(int x : diasMes){
+            for(int y : reservados){
+                if(x != y){
+                    datasLivres.add(x);
+                }
+            }
+        }
+    }
 
     public ReservaEntity save(ReservaEntity reservaEntity) {
         try {
@@ -55,7 +76,6 @@ public class ReservaService {
             return new ReservaEntity();
         }
     }
-
 
     public String delete(Long id){
         try {

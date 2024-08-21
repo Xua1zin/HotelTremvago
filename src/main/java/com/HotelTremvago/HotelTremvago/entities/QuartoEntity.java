@@ -29,9 +29,6 @@ public class QuartoEntity {
 
     private int capacidade;
 
-    @Enumerated(EnumType.STRING)
-    private ReservaStatus reservado;
-
     @OneToMany(mappedBy = "quarto")
     @JsonIgnore
     private List<ReservaEntity> reservas;
