@@ -33,13 +33,22 @@ public class UsuarioService {
         }
     }
 
-    public UsuarioEntity update(UsuarioEntity usuarioEntity, Long id){
-        try{
-            usuarioEntity.setId(id);
-            return usuarioRepository.save(usuarioEntity);
-        } catch(Exception e){
-            System.out.println("Nao foi possivel atualizar usuario: " + e.getMessage());
-            return new UsuarioEntity();
+    public UsuarioEntity update(UsuarioEntity usuarioEntity, Long id) {
+        try {
+            UsuarioEntity usuario = usuarioRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID " + id));
+
+            usuario.setNome(usuarioEntity.getNome());
+            usuario.setDataNascimento(usuarioEntity.getDataNascimento());
+            usuario.setCpf(usuarioEntity.getCpf());
+            usuario.setRg(usuarioEntity.getRg());
+            usuario.setTelefone(usuarioEntity.getTelefone());
+            usuario.setEmail(usuarioEntity.getEmail());
+
+            return usuarioRepository.save(usuario);
+        } catch (Exception e) {
+            System.out.println("Não foi possível atualizar o usuário: " + e.getMessage());
+            return null;
         }
     }
 

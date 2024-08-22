@@ -1,5 +1,7 @@
 package com.HotelTremvago.HotelTremvago.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -10,36 +12,49 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
 
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "hotel")
+@Table(name = "hospede")
 public class HospedeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @NotNull
-    @NotEmpty
     @NotBlank
     private String nome;
-    private Date dataNascimento;
+
     @NotNull
-    @NotEmpty
+    private Date dataNascimento;
+
+    @NotNull
     @NotBlank
     private String cpf;
+
     @NotNull
-    @NotEmpty
     @NotBlank
     private String rg;
+
     @NotNull
-    @NotEmpty
     @NotBlank
     private String telefone;
+
     @NotNull
-    @NotEmpty
     @NotBlank
     private String email;
+
+    @ManyToOne
+    @JoinColumn(name = "quarto_id")
+    @JsonIgnoreProperties("hospedes")
+    private QuartoEntity quarto;
+
+    @ManyToMany(mappedBy = "hospedes")
+    @JsonIgnoreProperties("hospedes")
+    private List<ReservaEntity> reservas;
 }
+

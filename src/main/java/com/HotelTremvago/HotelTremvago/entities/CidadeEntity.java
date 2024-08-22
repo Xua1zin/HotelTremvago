@@ -1,6 +1,5 @@
 package com.HotelTremvago.HotelTremvago.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -17,19 +16,18 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "tipo_quarto")
-public class TipoQuartoEntity {
+@Table(name = "cidade", uniqueConstraints = {@UniqueConstraint(columnNames = {"cidade", "estado"})})
+public class CidadeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
     @NotBlank
-    private String nome;
+    @Column(unique = true)
+    private String cidade;
 
-    private Double valor;
-
-    @OneToMany(mappedBy = "tipoQuarto", cascade = CascadeType.REMOVE)
-    @JsonIgnoreProperties("tipoQuarto")
-    private List<QuartoEntity> quartos;
+    @NotNull
+    @NotBlank
+    private String estado;
 }
