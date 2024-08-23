@@ -213,7 +213,7 @@ public class ReservaService {
             throw new IllegalStateException("Apenas reservas com status OCUPADO podem ser check-out");
         }
 
-        reserva.setStatus(ReservaStatus.RESERVADO);
+        reserva.setStatus(ReservaStatus.SAIDA);
         reserva.setDataCheckOut(new Date());
 
         return reservaRepository.save(reserva);
