@@ -5,11 +5,14 @@ import com.HotelTremvago.HotelTremvago.entities.HotelEntity;
 import com.HotelTremvago.HotelTremvago.repositories.CidadeRepository;
 import com.HotelTremvago.HotelTremvago.repositories.HotelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class HotelService {
@@ -18,9 +21,17 @@ public class HotelService {
     @Autowired
     private CidadeRepository cidadeRepository;
 
+    //mexido, precisa de testes
     public HotelEntity save(HotelEntity hotelEntity){
         try{
-            return hotelRepository.save(hotelEntity);
+            Long cidadeId = hotelEntity.getCidade().getId();
+
+            CidadeEntity cidadeEntity = cidadeRepository.findById(cidadeId)
+                    .orElseThrow(() -> new IllegalArgumentException("Cidade não encotrada"));
+
+            cidadeEntity.setCidade(String.valueOf(cidadeEntity));
+
+            return hotelEntity;
         } catch(Exception e){
             System.out.println("Nao foi possivel salvar hotel: " + e.getMessage());
             return new HotelEntity();

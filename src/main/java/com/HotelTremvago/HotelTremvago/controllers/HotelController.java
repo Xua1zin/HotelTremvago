@@ -17,22 +17,11 @@ import java.util.Optional;
 public class HotelController {
     @Autowired
     private HotelService hotelService;
-    @Autowired
-    private CidadeRepository cidadeRepository;
 
     @PostMapping("/save")
     public ResponseEntity<HotelEntity> save(@RequestBody HotelEntity hotelEntity) {
         try {
-            HotelEntity hotel = hotelService.save(hotelEntity);
-            Long cidadeId = hotel.getCidade().getId();
-
-            Optional<CidadeEntity> cidadeOptional = cidadeRepository.findById(cidadeId);
-            if (cidadeOptional.isPresent()) {
-                hotel.setCidade(cidadeOptional.get());
-                return new ResponseEntity<>(hotel, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-            }
+            return ResponseEntity.ok(hotelService.save(hotelEntity));
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }

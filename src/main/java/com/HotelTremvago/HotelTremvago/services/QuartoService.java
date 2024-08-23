@@ -22,16 +22,18 @@ public class QuartoService {
     @Autowired
     private TipoQuartoRepository tipoQuartoRepository;
     @Autowired
-    ReservaService reservaService;
+    private ReservaService reservaService;
     @Autowired
-    ReservaRepository reservaRepository;
+    private ReservaRepository reservaRepository;
 
+    //mexido, precisa de testes
     public QuartoEntity criarQuarto(QuartoEntity quartoEntity){
         try {
             TipoQuartoEntity tipoQuartoEntity = quartoEntity.getTipoQuarto();
             Optional<TipoQuartoEntity> tipoQuartoExistente = tipoQuartoRepository.findByNome(tipoQuartoEntity.getNome());
             if(!tipoQuartoExistente.isPresent()){
                 this.tipoQuartoRepository.save(tipoQuartoEntity);
+                quartoEntity.setTipoQuarto(tipoQuartoEntity);
             } else {
                 tipoQuartoEntity = tipoQuartoExistente.get();
                 quartoEntity.setTipoQuarto(tipoQuartoEntity);

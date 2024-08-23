@@ -17,23 +17,12 @@ import java.util.Optional;
 public class QuartoController {
     @Autowired
     private QuartoService quartoService;
-    @Autowired
-    private TipoQuartoRepository tipoQuartoRepository;
 
     @PostMapping("/criarQuarto")
     public ResponseEntity<QuartoEntity> criarQuarto(@RequestBody QuartoEntity quartoEntity) {
         try {
             QuartoEntity novoQuarto = quartoService.criarQuarto(quartoEntity);
-            Long tipoQuartoId = novoQuarto.getTipoQuarto().getId();
-
-            Optional<TipoQuartoEntity> tipoQuartoOpt = tipoQuartoRepository.findById(tipoQuartoId);
-
-            if (novoQuarto != null && novoQuarto.getId() != null) {
-                novoQuarto.setTipoQuarto(tipoQuartoOpt.get());
-                return new ResponseEntity<>(novoQuarto, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-            }
+            return new ResponseEntity<>(novoQuarto, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
