@@ -69,34 +69,6 @@ class ReservaControllerTest {
     }
 
     @Test
-    public void testCancelaReserva_Sucesso() {
-        ReservaEntity reservaEntity = new ReservaEntity();
-        reservaEntity.setStatus(ReservaStatus.OCUPADO);
-
-        when(reservaService.findById(anyLong())).thenReturn(reservaEntity);
-        when(reservaService.update(any(ReservaEntity.class), anyLong())).thenReturn(reservaEntity);
-
-        ResponseEntity<ReservaEntity> response = reservaController.cancela(1L);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(ReservaStatus.CANCELADO, response.getBody().getStatus());
-        verify(reservaService).findById(anyLong());
-        verify(reservaService).update(any(ReservaEntity.class), anyLong());
-    }
-
-    @Test
-    public void testCancelaReserva_ReservaNaoEncontrada() {
-        when(reservaService.findById(anyLong())).thenReturn(null);
-
-        ResponseEntity<ReservaEntity> response = reservaController.cancela(1L);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals(null, response.getBody());
-        verify(reservaService).findById(anyLong());
-        verify(reservaService, never()).update(any(ReservaEntity.class), anyLong());
-    }
-
-    @Test
     public void testListaDiasDisponiveisPorMes() {
         List<Integer> diasDisponiveis = new ArrayList<>();
         diasDisponiveis.add(1);

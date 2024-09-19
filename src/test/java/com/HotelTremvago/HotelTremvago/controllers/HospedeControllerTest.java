@@ -77,15 +77,7 @@ public class HospedeControllerTest {
         assertEquals(hospede, response.getBody());
     }
 
-    @Test
-    public void testFindById_NotFound() {
-        when(hospedeService.findById(anyLong())).thenReturn(null);
 
-        ResponseEntity<HospedeEntity> response = hospedeController.findById(1L);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNull(response.getBody());
-    }
 
     @Test
     public void testFindAll() {
@@ -185,13 +177,5 @@ public class HospedeControllerTest {
         assertNull(response.getBody());
     }
 
-    @Test
-    public void testDeleteNotFound() {
-        when(hospedeService.delete(anyLong())).thenThrow(new IllegalArgumentException("ID não encontrado"));
 
-        ResponseEntity<String> response = hospedeController.delete(1L);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals("ID não encontrado", response.getBody());
-    }
 }

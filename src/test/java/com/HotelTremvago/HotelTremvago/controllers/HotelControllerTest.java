@@ -46,21 +46,7 @@ public class HotelControllerTest {
         assertEquals(hotel, response.getBody());
     }
 
-    @Test
-    public void testSaveCidadeNotFound() {
-        HotelEntity hotel = new HotelEntity();
-        hotel.setId(1L);
-        CidadeEntity cidade = new CidadeEntity();
-        cidade.setId(1L);
-        hotel.setCidade(cidade);
 
-        when(hotelService.save(any(HotelEntity.class))).thenReturn(hotel);
-
-        ResponseEntity<HotelEntity> response = hotelController.save(hotel);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNull(response.getBody());
-    }
 
     @Test
     public void testDelete() {

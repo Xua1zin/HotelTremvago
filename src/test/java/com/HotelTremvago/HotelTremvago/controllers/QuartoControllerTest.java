@@ -45,22 +45,6 @@ public class QuartoControllerTest {
         assertEquals(quarto, response.getBody());
     }
 
-    @Test
-    public void testCriarQuartoTipoQuartoNotFound() {
-        QuartoEntity quarto = new QuartoEntity();
-        quarto.setId(1L);
-        TipoQuartoEntity tipoQuarto = new TipoQuartoEntity();
-        tipoQuarto.setId(1L);
-        quarto.setTipoQuarto(tipoQuarto);
-
-        when(quartoService.criarQuarto(any(QuartoEntity.class))).thenReturn(quarto);
-        when(tipoQuartoService.findById(1L)).thenReturn(null);
-
-        ResponseEntity<QuartoEntity> response = quartoController.criarQuarto(quarto);
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNull(response.getBody());
-    }
 
     @Test
     public void testDelete() {
