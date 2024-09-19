@@ -21,10 +21,8 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 public class TipoQuartoControllerTest {
-
     @Autowired
     private TipoQuartoController tipoQuartoController;
-
     @MockBean
     private TipoQuartoService tipoQuartoService;
 
@@ -107,7 +105,7 @@ public class TipoQuartoControllerTest {
         ResponseEntity<TipoQuartoEntity> response = tipoQuartoController.findById(1L);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(Optional.of(tipoQuartoEntity), response.getBody());
+        assertEquals(tipoQuartoEntity, response.getBody());
         verify(tipoQuartoService).findById(anyLong());
     }
 

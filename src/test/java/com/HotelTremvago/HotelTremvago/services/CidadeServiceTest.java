@@ -16,10 +16,8 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest
 class CidadeServiceTest {
-
     @Autowired
     private CidadeService cidadeService;
-
     @MockBean
     private CidadeRepository cidadeRepository;
 

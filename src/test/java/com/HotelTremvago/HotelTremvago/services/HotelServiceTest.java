@@ -20,26 +20,35 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class HotelServiceTest {
-
-    @MockBean
-    private HotelRepository hotelRepository;
-
-    @MockBean
-    private CidadeRepository cidadeRepository;
-
     @Autowired
     private HotelService hotelService;
+    @MockBean
+    private HotelRepository hotelRepository;
+    @MockBean
+    private CidadeRepository cidadeRepository;
 
     @Test
     public void testSave() {
         HotelEntity hotel = new HotelEntity();
+        hotel.setId(1L);
+        hotel.setNomeFantasia("Hotel Teste");
+
+        CidadeEntity cidade = new CidadeEntity();
+        cidade.setId(1L);
+        cidade.setEstado("PR");
+        hotel.setCidade(cidade);
+
+        when(cidadeRepository.findById(1L)).thenReturn(Optional.of(cidade));
+
         when(hotelRepository.save(any(HotelEntity.class))).thenReturn(hotel);
 
         HotelEntity result = hotelService.save(hotel);
 
         assertNotNull(result);
         verify(hotelRepository).save(hotel);
+        verify(cidadeRepository).findById(1L);
     }
+
 
     @Test
     public void testDelete() {

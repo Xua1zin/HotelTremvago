@@ -21,15 +21,12 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class QuartoControllerTest {
-
-    @MockBean
-    private QuartoService quartoService;
-
-    @MockBean
-    private TipoQuartoService tipoQuartoService;
-
     @Autowired
     private QuartoController quartoController;
+    @MockBean
+    private QuartoService quartoService;
+    @MockBean
+    private TipoQuartoService tipoQuartoService;
 
     @Test
     public void testCriarQuarto() {

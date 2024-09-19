@@ -22,18 +22,18 @@ public class HotelService {
     private CidadeRepository cidadeRepository;
 
     //mexido, precisa de testes
-    public HotelEntity save(HotelEntity hotelEntity){
-        try{
+    public HotelEntity save(HotelEntity hotelEntity) {
+        try {
             Long cidadeId = hotelEntity.getCidade().getId();
 
             CidadeEntity cidadeEntity = cidadeRepository.findById(cidadeId)
-                    .orElseThrow(() -> new IllegalArgumentException("Cidade não encotrada"));
+                    .orElseThrow(() -> new IllegalArgumentException("Cidade não encontrada"));
 
-            cidadeEntity.setCidade(String.valueOf(cidadeEntity));
+            hotelEntity.setCidade(cidadeEntity);
 
-            return hotelEntity;
-        } catch(Exception e){
-            System.out.println("Nao foi possivel salvar hotel: " + e.getMessage());
+            return hotelRepository.save(hotelEntity);
+        } catch (Exception e) {
+            System.out.println("Não foi possível salvar o hotel: " + e.getMessage());
             return new HotelEntity();
         }
     }

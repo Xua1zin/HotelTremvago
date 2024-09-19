@@ -20,12 +20,10 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class UsuarioServiceTest {
-
-    @MockBean
-    private UsuarioRepository usuarioRepository;
-
     @Autowired
     private UsuarioService usuarioService;
+    @MockBean
+    private UsuarioRepository usuarioRepository;
 
     @Test
     public void testSave() {

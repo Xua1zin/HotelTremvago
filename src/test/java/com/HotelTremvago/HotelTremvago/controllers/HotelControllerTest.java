@@ -23,20 +23,12 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class HotelControllerTest {
-
-    @MockBean
-    private HotelService hotelService;
-
-    @MockBean
-    private CidadeRepository cidadeRepository;
-
     @Autowired
     private HotelController hotelController;
-
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+    @MockBean
+    private HotelService hotelService;
+    @MockBean
+    private CidadeRepository cidadeRepository;
 
     @Test
     public void testSave() {
@@ -47,7 +39,6 @@ public class HotelControllerTest {
         hotel.setCidade(cidade);
 
         when(hotelService.save(any(HotelEntity.class))).thenReturn(hotel);
-        when(cidadeRepository.findById(1L)).thenReturn(Optional.of(cidade));
 
         ResponseEntity<HotelEntity> response = hotelController.save(hotel);
 
@@ -64,7 +55,6 @@ public class HotelControllerTest {
         hotel.setCidade(cidade);
 
         when(hotelService.save(any(HotelEntity.class))).thenReturn(hotel);
-        when(cidadeRepository.findById(1L)).thenReturn(Optional.empty());
 
         ResponseEntity<HotelEntity> response = hotelController.save(hotel);
 

@@ -25,18 +25,14 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 public class QuartoServiceTest {
-
-    @MockBean
-    private QuartoRepository quartoRepository;
-
-    @MockBean
-    private TipoQuartoRepository tipoQuartoRepository;
-
-    @MockBean
-    private ReservaRepository reservaRepository;
-
     @Autowired
     private QuartoService quartoService;
+    @MockBean
+    private QuartoRepository quartoRepository;
+    @MockBean
+    private TipoQuartoRepository tipoQuartoRepository;
+    @MockBean
+    private ReservaRepository reservaRepository;
 
     @Test
     public void testCriarQuartoHandlesException() {
