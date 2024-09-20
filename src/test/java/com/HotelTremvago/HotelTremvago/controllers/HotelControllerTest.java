@@ -1,12 +1,9 @@
 package com.HotelTremvago.HotelTremvago.controllers;
 
-import com.HotelTremvago.HotelTremvago.entities.CidadeEntity;
 import com.HotelTremvago.HotelTremvago.entities.HotelEntity;
-import com.HotelTremvago.HotelTremvago.repositories.CidadeRepository;
 import com.HotelTremvago.HotelTremvago.services.HotelService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -15,52 +12,64 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
-public class HotelControllerTest {
+class HotelControllerTest {
+
     @Autowired
     private HotelController hotelController;
+
     @MockBean
     private HotelService hotelService;
-    @MockBean
-    private CidadeRepository cidadeRepository;
 
-    @Test
-    public void testSave() {
-        HotelEntity hotel = new HotelEntity();
-        hotel.setId(1L);
-        CidadeEntity cidade = new CidadeEntity();
-        cidade.setId(1L);
-        hotel.setCidade(cidade);
+    private HotelEntity hotelEntity;
+    private List<HotelEntity> hotelList;
 
-        when(hotelService.save(any(HotelEntity.class))).thenReturn(hotel);
+    @BeforeEach
+    void setUp() {
+        hotelEntity = new HotelEntity();
+        hotelEntity.setId(1L);
+        hotelEntity.setNomeFantasia("Hotel Test");
 
-        ResponseEntity<HotelEntity> response = hotelController.save(hotel);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(hotel, response.getBody());
+        hotelList = Arrays.asList(hotelEntity);
     }
 
+    @Test
+    void testSave_Success() {
+        when(hotelService.save(any(HotelEntity.class))).thenReturn(hotelEntity);
 
+        ResponseEntity<HotelEntity> response = hotelController.save(hotelEntity);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(hotelEntity, response.getBody());
+    }
 
     @Test
-    public void testDelete() {
-        when(hotelService.delete(1L)).thenReturn("Hotel deleted");
+    void testSave_Failure() {
+        when(hotelService.save(any(HotelEntity.class))).thenThrow(new RuntimeException("Error"));
+
+        ResponseEntity<HotelEntity> response = hotelController.save(hotelEntity);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNull(response.getBody());
+    }
+
+    @Test
+    void testDelete_Success() {
+        when(hotelService.delete(anyLong())).thenReturn("Hotel deletado com sucesso");
 
         ResponseEntity<String> response = hotelController.delete(1L);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("Hotel deleted", response.getBody());
+        assertEquals("Hotel deletado com sucesso", response.getBody());
     }
 
     @Test
-    public void testDeleteException() {
-        when(hotelService.delete(1L)).thenThrow(new RuntimeException("Erro"));
+    void testDelete_Failure() {
+        when(hotelService.delete(anyLong())).thenThrow(new RuntimeException("Error"));
 
         ResponseEntity<String> response = hotelController.delete(1L);
 
@@ -69,43 +78,38 @@ public class HotelControllerTest {
     }
 
     @Test
-    public void testUpdate() {
-        HotelEntity hotel = new HotelEntity();
-        hotel.setId(1L);
-        when(hotelService.update(any(HotelEntity.class), anyLong())).thenReturn(hotel);
+    void testUpdate_Success() {
+        when(hotelService.update(any(HotelEntity.class), anyLong())).thenReturn(hotelEntity);
 
-        ResponseEntity<HotelEntity> response = hotelController.update(hotel, 1L);
+        ResponseEntity<HotelEntity> response = hotelController.update(hotelEntity, 1L);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(hotel, response.getBody());
+        assertEquals(hotelEntity, response.getBody());
     }
 
     @Test
-    public void testUpdateException() {
-        HotelEntity hotel = new HotelEntity();
-        when(hotelService.update(any(HotelEntity.class), anyLong())).thenThrow(new RuntimeException("Erro"));
+    void testUpdate_Failure() {
+        when(hotelService.update(any(HotelEntity.class), anyLong())).thenThrow(new RuntimeException("Error"));
 
-        ResponseEntity<HotelEntity> response = hotelController.update(hotel, 1L);
+        ResponseEntity<HotelEntity> response = hotelController.update(hotelEntity, 1L);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNull(response.getBody());
     }
 
     @Test
-    public void testFindById() {
-        HotelEntity hotel = new HotelEntity();
-        hotel.setId(1L);
-        when(hotelService.findById(1L)).thenReturn(hotel);
+    void testFindById_Success() {
+        when(hotelService.findById(anyLong())).thenReturn(hotelEntity);
 
         ResponseEntity<HotelEntity> response = hotelController.findById(1L);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(hotel, response.getBody());
+        assertEquals(hotelEntity, response.getBody());
     }
 
     @Test
-    public void testFindByIdException() {
-        when(hotelService.findById(1L)).thenThrow(new RuntimeException("Erro"));
+    void testFindById_Failure() {
+        when(hotelService.findById(anyLong())).thenThrow(new RuntimeException("Error"));
 
         ResponseEntity<HotelEntity> response = hotelController.findById(1L);
 
@@ -114,21 +118,18 @@ public class HotelControllerTest {
     }
 
     @Test
-    public void testFindAll() {
-        HotelEntity hotel1 = new HotelEntity();
-        HotelEntity hotel2 = new HotelEntity();
-        List<HotelEntity> hotels = Arrays.asList(hotel1, hotel2);
-        when(hotelService.findAll()).thenReturn(hotels);
+    void testFindAll_Success() {
+        when(hotelService.findAll()).thenReturn(hotelList);
 
         ResponseEntity<List<HotelEntity>> response = hotelController.findAll();
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(hotels, response.getBody());
+        assertEquals(hotelList, response.getBody());
     }
 
     @Test
-    public void testFindAllException() {
-        when(hotelService.findAll()).thenThrow(new RuntimeException("Erro"));
+    void testFindAll_Failure() {
+        when(hotelService.findAll()).thenThrow(new RuntimeException("Error"));
 
         ResponseEntity<List<HotelEntity>> response = hotelController.findAll();
 
@@ -137,23 +138,20 @@ public class HotelControllerTest {
     }
 
     @Test
-    public void testSaveAll() {
-        HotelEntity hotel1 = new HotelEntity();
-        HotelEntity hotel2 = new HotelEntity();
-        List<HotelEntity> hotels = Arrays.asList(hotel1, hotel2);
-        when(hotelService.saveAll(anyList())).thenReturn(hotels);
+    void testSaveAll_Success() {
+        when(hotelService.saveAll(anyList())).thenReturn(hotelList);
 
-        ResponseEntity<List<HotelEntity>> response = hotelController.saveAll(hotels);
+        ResponseEntity<List<HotelEntity>> response = hotelController.saveAll(hotelList);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(hotels, response.getBody());
+        assertEquals(hotelList, response.getBody());
     }
 
     @Test
-    public void testSaveAllException() {
-        when(hotelService.saveAll(anyList())).thenThrow(new RuntimeException("Erro"));
+    void testSaveAll_Failure() {
+        when(hotelService.saveAll(anyList())).thenThrow(new RuntimeException("Error"));
 
-        ResponseEntity<List<HotelEntity>> response = hotelController.saveAll(Arrays.asList(new HotelEntity()));
+        ResponseEntity<List<HotelEntity>> response = hotelController.saveAll(hotelList);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNull(response.getBody());

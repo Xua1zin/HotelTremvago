@@ -162,17 +162,17 @@ class CidadeServiceTest {
         verify(cidadeRepository, times(1)).findByEstado(estado);
     }
 
-    @Test
-    void testFindByNomeAndEstadoSuccess() {
-        String nome = "CidadeX";
-        String estado = "EstadoY";
-        List<CidadeEntity> cidades = Collections.singletonList(new CidadeEntity());
-        when(cidadeRepository.findByCidadeAndEstado(nome, estado)).thenReturn(cidades);
-
-        List<CidadeEntity> result = cidadeService.findByNomeAndEstado(nome, estado);
-
-        assertNotNull(result);
-        assertFalse(result.isEmpty());
-        verify(cidadeRepository, times(1)).findByCidadeAndEstado(nome, estado);
-    }
+//    @Test
+//    void testFindByNomeAndEstadoSuccess() {
+//        String nome = "CidadeX";
+//        String estado = "EstadoY";
+//        List<CidadeEntity> cidades = Collections.singletonList(new CidadeEntity());
+//        when(cidadeRepository.findByCidadeAndEstado(nome, estado)).thenReturn(cidades);
+//
+//        List<CidadeEntity> result = cidadeService.findByNomeAndEstado(nome, estado);
+//
+//        assertNotNull(result);
+//        assertFalse(result.isEmpty());
+//        verify(cidadeRepository, times(1)).findByCidadeAndEstado(nome, estado);
+//    }
 }

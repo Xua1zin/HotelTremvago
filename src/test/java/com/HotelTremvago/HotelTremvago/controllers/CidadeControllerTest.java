@@ -4,8 +4,6 @@ import com.HotelTremvago.HotelTremvago.entities.CidadeEntity;
 import com.HotelTremvago.HotelTremvago.services.CidadeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -13,135 +11,148 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.anyList;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class CidadeControllerTest {
+
     @Autowired
     private CidadeController cidadeController;
+
     @MockBean
     private CidadeService cidadeService;
 
-    @Test
-    public void testSave() {
-        CidadeEntity cidade = new CidadeEntity();
-        cidade.setId(1L);
-        when(cidadeService.save(any(CidadeEntity.class))).thenReturn(cidade);
-        ResponseEntity<CidadeEntity> response = cidadeController.save(cidade);
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals(cidade, response.getBody());
+    private CidadeEntity cidadeEntity;
+    private List<CidadeEntity> cidadeList;
+
+    @BeforeEach
+    void setUp() {
+        cidadeEntity = new CidadeEntity();
+        cidadeEntity.setId(1L);
+        cidadeEntity.setCidade("São Paulo");
+        cidadeEntity.setEstado("SP");
+
+        cidadeList = Arrays.asList(cidadeEntity);
     }
 
     @Test
-    public void testSaveAll() {
-        CidadeEntity cidade1 = new CidadeEntity();
-        CidadeEntity cidade2 = new CidadeEntity();
-        List<CidadeEntity> cidades = Arrays.asList(cidade1, cidade2);
-        when(cidadeService.saveAll(anyList())).thenReturn(cidades);
+    void testSave_Success() {
+        when(cidadeService.save(any(CidadeEntity.class))).thenReturn(cidadeEntity);
 
-        ResponseEntity<List<CidadeEntity>> response = cidadeController.saveAll(cidades);
+        ResponseEntity<CidadeEntity> response = cidadeController.save(cidadeEntity);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals(cidades, response.getBody());
+        assertEquals(cidadeEntity, response.getBody());
     }
 
     @Test
-    public void testFindById() {
-        CidadeEntity cidade = new CidadeEntity();
-        cidade.setId(1L);
-        when(cidadeService.findById(1L)).thenReturn(cidade);
+    void testSave_Failure() {
+        when(cidadeService.save(any(CidadeEntity.class))).thenThrow(new RuntimeException("Error"));
+
+        ResponseEntity<CidadeEntity> response = cidadeController.save(cidadeEntity);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNull(response.getBody());
+    }
+
+    @Test
+    void testSaveAll_Success() {
+        when(cidadeService.saveAll(anyList())).thenReturn(cidadeList);
+
+        ResponseEntity<List<CidadeEntity>> response = cidadeController.saveAll(cidadeList);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(cidadeList, response.getBody());
+    }
+
+    @Test
+    void testSaveAll_Failure() {
+        when(cidadeService.saveAll(anyList())).thenThrow(new RuntimeException("Error"));
+
+        ResponseEntity<List<CidadeEntity>> response = cidadeController.saveAll(cidadeList);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNull(response.getBody());
+    }
+
+    @Test
+    void testFindById_Success() {
+        when(cidadeService.findById(anyLong())).thenReturn(cidadeEntity);
 
         ResponseEntity<CidadeEntity> response = cidadeController.findById(1L);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(cidade, response.getBody());
+        assertEquals(cidadeEntity, response.getBody());
     }
 
+    @Test
+    void testFindById_NotFound() {
+        when(cidadeService.findById(anyLong())).thenThrow(new RuntimeException("Not found"));
+
+        ResponseEntity<CidadeEntity> response = cidadeController.findById(1L);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNull(response.getBody());
+    }
 
     @Test
-    public void testFindAll() {
-        CidadeEntity cidade1 = new CidadeEntity();
-        CidadeEntity cidade2 = new CidadeEntity();
-        List<CidadeEntity> cidades = Arrays.asList(cidade1, cidade2);
-        when(cidadeService.findAll()).thenReturn(cidades);
+    void testFindAll_Success() {
+        when(cidadeService.findAll()).thenReturn(cidadeList);
 
         ResponseEntity<List<CidadeEntity>> response = cidadeController.findAll();
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(cidades, response.getBody());
+        assertEquals(cidadeList, response.getBody());
     }
 
     @Test
-    public void testFindAll_EmptyList() {
-        when(cidadeService.findAll()).thenReturn(Collections.emptyList());
+    void testFindAll_Failure() {
+        when(cidadeService.findAll()).thenThrow(new RuntimeException("Error"));
 
         ResponseEntity<List<CidadeEntity>> response = cidadeController.findAll();
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(Collections.emptyList(), response.getBody());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNull(response.getBody());
     }
 
     @Test
-    public void testFindByNome() {
-        CidadeEntity cidade = new CidadeEntity();
-        List<CidadeEntity> cidades = Arrays.asList(cidade);
-        when(cidadeService.findByNome(anyString())).thenReturn(cidades);
+    void testFindByNome_Success() {
+        when(cidadeService.findByNome(anyString())).thenReturn(cidadeList);
 
-        ResponseEntity<List<CidadeEntity>> response = cidadeController.findByNome("TestNome");
+        ResponseEntity<List<CidadeEntity>> response = cidadeController.findByNome("São Paulo");
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(cidades, response.getBody());
+        assertEquals(cidadeList, response.getBody());
     }
 
     @Test
-    public void testFindByEstado() {
-        CidadeEntity cidade = new CidadeEntity();
-        List<CidadeEntity> cidades = Arrays.asList(cidade);
-        when(cidadeService.findByEstado(anyString())).thenReturn(cidades);
+    void testFindByNome_Failure() {
+        when(cidadeService.findByNome(anyString())).thenThrow(new RuntimeException("Error"));
 
-        ResponseEntity<List<CidadeEntity>> response = cidadeController.findByEstado("TestEstado");
+        ResponseEntity<List<CidadeEntity>> response = cidadeController.findByNome("São Paulo");
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(cidades, response.getBody());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNull(response.getBody());
     }
 
+    @Test
+    void testFindByEstado_Success() {
+        when(cidadeService.findByEstado(anyString())).thenReturn(cidadeList);
 
-//    @Test
-//    public void testFindByNomeandCidade() {
-//        CidadeEntity cidade = new CidadeEntity();
-//        List<CidadeEntity> cidades = List.of(cidade);
-//        when(cidadeService.findByNomeAndEstado(anyString(), anyString())).thenReturn(cidades);
-//
-//        ResponseEntity<List<CidadeEntity>> response = cidadeController.findByNomeAndCidade("TestNome", "TestCidade");
-//
-//        assertEquals(HttpStatus.OK, response.getStatusCode());
-//        assertEquals(cidades, response.getBody());
-//    }
+        ResponseEntity<List<CidadeEntity>> response = cidadeController.findByEstado("SP");
 
-//    @Test
-//    public void testFindByNomeAndEstado_NotFound() {
-//        when(cidadeService.findByNomeAndEstado(anyString(), anyString())).thenReturn(Collections.emptyList());
-//
-//        ResponseEntity<List<CidadeEntity>> response = cidadeController.findByNomeAndEstado("TestNome", "TestEstado");
-//
-//        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-//        assertEquals(Collections.emptyList(), response.getBody());
-//    }
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(cidadeList, response.getBody());
+    }
 
     @Test
-    public void testSaveException() {
-        CidadeEntity cidade = new CidadeEntity();
-        when(cidadeService.save(any(CidadeEntity.class))).thenThrow(new RuntimeException("Erro"));
+    void testFindByEstado_Failure() {
+        when(cidadeService.findByEstado(anyString())).thenThrow(new RuntimeException("Error"));
 
-        ResponseEntity<CidadeEntity> response = cidadeController.save(cidade);
+        ResponseEntity<List<CidadeEntity>> response = cidadeController.findByEstado("SP");
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNull(response.getBody());

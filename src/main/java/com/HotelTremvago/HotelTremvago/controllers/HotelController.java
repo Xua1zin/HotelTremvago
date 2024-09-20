@@ -1,8 +1,6 @@
 package com.HotelTremvago.HotelTremvago.controllers;
 
-import com.HotelTremvago.HotelTremvago.entities.CidadeEntity;
 import com.HotelTremvago.HotelTremvago.entities.HotelEntity;
-import com.HotelTremvago.HotelTremvago.repositories.CidadeRepository;
 import com.HotelTremvago.HotelTremvago.services.HotelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/hotel")
