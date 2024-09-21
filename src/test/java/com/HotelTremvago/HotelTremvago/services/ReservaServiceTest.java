@@ -18,8 +18,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
@@ -104,90 +103,168 @@ public class ReservaServiceTest {
 
         var dataTest = reservaService.datasLivres(tipoQuartoId, capacidade, mes, ano);
         assertEquals(expectedDiasLivres, dataTest);
-
     }
 
-
     @Test
-    void testSave() {
+    void testSaveSuccess() {
         TipoQuartoEntity tipoQuarto = new TipoQuartoEntity();
-        tipoQuarto.setId(1L);
-        tipoQuarto.setValor(200.0);
+        tipoQuarto.setValor(100.0);
 
         QuartoEntity quarto = new QuartoEntity();
         quarto.setId(1L);
         quarto.setTipoQuarto(tipoQuarto);
 
         ReservaEntity reserva = new ReservaEntity();
-        reserva.setId(1L);
         reserva.setQuarto(quarto);
         reserva.setDataInicio(Date.from(LocalDate.of(2024, 9, 1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
-        reserva.setDataFinal(Date.from(LocalDate.of(2024, 9, 3).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        reserva.setDataFinal(Date.from(LocalDate.of(2024, 9, 5).atStartOfDay(ZoneId.systemDefault()).toInstant()));
 
-        when(reservaRepository.save(any(ReservaEntity.class))).thenReturn(reserva);
+        when(quartoRepository.findById(quarto.getId())).thenReturn(Optional.of(quarto));
+        when(reservaRepository.save(reserva)).thenReturn(reserva);
 
-        when(quartoRepository.findById(1L)).thenReturn(Optional.of(quarto));
+        ReservaEntity result = reservaService.save(reserva);
 
-        ReservaEntity savedReserva = reservaService.save(reserva);
-        System.out.println(savedReserva.getTotal());
-
-        assertNotNull(savedReserva, "Reserva salva não deve ser nula.");
-        assertEquals(1L, savedReserva.getId(), "ID da reserva não corresponde ao esperado.");
+        assertNotNull(result);
+        assertEquals(reserva, result);
+        verify(reservaRepository).save(reserva);
     }
 
+    @Test
+    void testSaveFailure() {
+        TipoQuartoEntity tipoQuarto = new TipoQuartoEntity();
+        tipoQuarto.setValor(100.0);
+
+        QuartoEntity quarto = new QuartoEntity();
+        quarto.setId(1L);
+        quarto.setTipoQuarto(tipoQuarto);
+
+        ReservaEntity reserva = new ReservaEntity();
+        reserva.setQuarto(quarto);
+        reserva.setDataInicio(Date.from(LocalDate.of(2024, 9, 1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        reserva.setDataFinal(Date.from(LocalDate.of(2024, 9, 5).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+
+        when(quartoRepository.findById(quarto.getId())).thenReturn(Optional.of(quarto));
+        when(reservaRepository.save(reserva)).thenThrow(new IllegalArgumentException("Erro ao salvar"));
+
+        ReservaEntity result = reservaService.save(reserva);
+
+        assertNotNull(result);
+        assertNotEquals(reserva, result);
+        verify(reservaRepository).save(reserva);
+    }
 
     @Test
-    void testDelete() {
+    void testDeleteSuccess() {
         Long reservaId = 1L;
 
         doNothing().when(reservaRepository).deleteById(reservaId);
 
         String result = reservaService.delete(reservaId);
 
+        assertNotNull(result);
         assertEquals("Reserva deletado", result);
+        verify(reservaRepository).deleteById(reservaId);
     }
 
     @Test
-    void testUpdate() {
+    void testDeleteFailure() {
+        Long reservaId = 1L;
+
+        doThrow(new IllegalArgumentException("Erro ao deletar")).when(reservaRepository).deleteById(reservaId);
+
+        String result = reservaService.delete(reservaId);
+
+        assertNotNull(result);
+        assertEquals("Nao foi possivel deletar reserva", result);
+        verify(reservaRepository).deleteById(reservaId);
+    }
+
+    @Test
+    void testUpdateSuccess() {
         ReservaEntity reserva = new ReservaEntity();
         reserva.setId(1L);
 
         when(reservaRepository.save(any(ReservaEntity.class))).thenReturn(reserva);
 
-        ReservaEntity updatedReserva = reservaService.update(reserva, 1L);
+        ReservaEntity result = reservaService.update(reserva, 1L);
 
-        assertNotNull(updatedReserva);
-        assertEquals(1L, updatedReserva.getId());
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+        verify(reservaRepository).save(reserva);
     }
 
     @Test
-    void testFindById() {
+    void testUpdateFaiure() {
+        ReservaEntity reserva = new ReservaEntity();
+        reserva.setId(1L);
+
+        when(reservaRepository.save(any(ReservaEntity.class))).thenThrow(new IllegalArgumentException("Erro ao atualizar"));
+
+        ReservaEntity result = reservaService.update(reserva, 1L);
+
+        assertNotNull(result);
+        assertNotEquals(reserva, result);
+        verify(reservaRepository).save(reserva);
+    }
+
+    @Test
+    void testFindByIdSuccess() {
         Long reservaId = 1L;
         ReservaEntity reserva = new ReservaEntity();
         reserva.setId(reservaId);
 
         when(reservaRepository.findById(reservaId)).thenReturn(Optional.of(reserva));
 
-        ReservaEntity foundReserva = reservaService.findById(reservaId);
+        ReservaEntity result = reservaService.findById(reservaId);
 
-        assertNotNull(foundReserva);
-        assertEquals(reservaId, foundReserva.getId());
+        assertNotNull(result);
+        assertEquals(reserva, result);
+        verify(reservaRepository).findById(reserva.getId());
     }
 
     @Test
-    void testFindAll() {
+    void testFindByIdFailure() {
+        Long reservaId = 1L;
+        ReservaEntity reserva = new ReservaEntity();
+        reserva.setId(reservaId);
+
+        when(reservaRepository.findById(reservaId)).thenReturn(Optional.empty());
+
+        ReservaEntity result = reservaService.findById(reservaId);
+
+        assertNotNull(result);
+        assertNotEquals(reserva, result);
+        verify(reservaRepository).findById(reserva.getId());
+    }
+
+    @Test
+    void testFindAllSuccess() {
         List<ReservaEntity> reservas = Arrays.asList(new ReservaEntity(), new ReservaEntity());
 
         when(reservaRepository.findAll()).thenReturn(reservas);
 
-        List<ReservaEntity> allReservas = reservaService.findAll();
+        List<ReservaEntity> result = reservaService.findAll();
 
-        assertNotNull(allReservas);
-        assertEquals(2, allReservas.size());
+        assertNotNull(result);
+        assertEquals(reservas, result);
+        verify(reservaRepository).findAll();
     }
 
     @Test
-    void testAddHospedeToReserva() {
+    void testFindAllFailure() {
+        List<ReservaEntity> reservas = Arrays.asList(new ReservaEntity(), new ReservaEntity());
+
+        when(reservaRepository.findAll()).thenThrow(new IllegalArgumentException("Nenhuma reserva encontrada"));
+
+        List<ReservaEntity> result = reservaService.findAll();
+
+        assertNotNull(result);
+        assertNotEquals(reservas, result);
+        verify(reservaRepository).findAll();
+    }
+
+    @Test
+    void testAddHospedeToReservaSuccess() {
         ReservaEntity reserva = new ReservaEntity();
         reserva.setId(1L);
         reserva.setHospedes(new ArrayList<>());
@@ -198,57 +275,162 @@ public class ReservaServiceTest {
 
         when(reservaRepository.findById(reserva.getId())).thenReturn(Optional.of(reserva));
         when(hospedeRepository.findById(hospede.getId())).thenReturn(Optional.of(hospede));
-        when(reservaRepository.save(any(ReservaEntity.class))).thenReturn(reserva);
-        when(hospedeRepository.save(any(HospedeEntity.class))).thenReturn(hospede);
+        when(reservaRepository.save(reserva)).thenReturn(reserva);
+        when(hospedeRepository.save(hospede)).thenReturn(hospede);
 
-        ReservaEntity updatedReserva = reservaService.addHospedeToReserva(reserva.getId(), hospede.getId());
+        ReservaEntity result = reservaService.addHospedeToReserva(reserva.getId(), hospede.getId());
 
-        assertNotNull(updatedReserva, "Reserva atualizada não deve ser nula.");
-        assertTrue(updatedReserva.getHospedes().contains(hospede), "O hóspede não foi adicionado à reserva.");
-        assertTrue(hospede.getReservas().contains(updatedReserva), "A reserva não foi adicionada ao hóspede.");
+        assertNotNull(result);
+        assertEquals(reserva, result);
+        assertTrue(reserva.getHospedes().contains(hospede));
+        verify(reservaRepository).findById(reserva.getId());
+        verify(hospedeRepository).findById(hospede.getId());
+        verify(reservaRepository).save(reserva);
+        verify(hospedeRepository).save(hospede);
     }
 
 
     @Test
-    void testRemoveHospedeFromReserva() {
+    void testAddHospedeToReservaReservaInexistente() {
+        when(reservaRepository.findById(1L)).thenReturn(Optional.empty());
+
+        ReservaEntity result = reservaService.addHospedeToReserva(1L, 1L);
+
+        assertNull(result);
+        verify(reservaRepository).findById(1L);
+        verify(hospedeRepository, never()).findById(anyLong());
+    }
+
+    @Test
+    void testAddHospedeToReservaHospedeInexistente() {
+        ReservaEntity reserva = new ReservaEntity();
+        reserva.setId(1L);
+        reserva.setHospedes(new ArrayList<>());
+
+        when(reservaRepository.findById(reserva.getId())).thenReturn(Optional.of(reserva));
+        when(hospedeRepository.findById(1L)).thenReturn(Optional.empty());
+
+        ReservaEntity result = reservaService.addHospedeToReserva(reserva.getId(), 1L);
+
+        assertNull(result);
+        verify(reservaRepository).findById(reserva.getId());
+        verify(hospedeRepository).findById(1L);
+    }
+
+    @Test
+    void testRemoveHospedeFromReservaSuccess() {
         ReservaEntity reserva = new ReservaEntity();
         reserva.setId(1L);
         List<ReservaEntity> reservas = new ArrayList<>();
+        reservas.add(reserva);
 
         HospedeEntity hospede = new HospedeEntity();
         hospede.setId(1L);
         List<HospedeEntity> hospedes = new ArrayList<>();
+        hospedes.add(hospede);
+        hospede.setReservas(reservas);
+        reserva.setHospedes(hospedes);
 
         hospede.setReservas(reservas);
         reserva.setHospedes(hospedes);
 
         when(reservaRepository.findById(reserva.getId())).thenReturn(Optional.of(reserva));
         when(hospedeRepository.findById(hospede.getId())).thenReturn(Optional.of(hospede));
-        when(reservaRepository.save(any(ReservaEntity.class))).thenReturn(reserva);
-        when(hospedeRepository.save(any(HospedeEntity.class))).thenReturn(hospede);
+        when(reservaRepository.save(reserva)).thenReturn(reserva);
+        when(hospedeRepository.save(hospede)).thenReturn(hospede);
 
-        ReservaEntity updatedReserva = reservaService.removeHospedeFromReserva(reserva.getId(), hospede.getId());
+        ReservaEntity result = reservaService.removeHospedeFromReserva(reserva.getId(), hospede.getId());
 
-        assertNotNull(updatedReserva);
+        assertNotNull(result);
+        assertEquals(reserva, result);
+        assertFalse(reserva.getHospedes().contains(hospede));
+        verify(reservaRepository).findById(reserva.getId());
+        verify(hospedeRepository).findById(hospede.getId());
+        verify(reservaRepository).save(reserva);
+        verify(hospedeRepository).save(hospede);
     }
 
     @Test
-    void testRealizarCheckIn() {
+    void testRemoveHospedeToReservaReservaInexistente() {
+        when(reservaRepository.findById(1L)).thenReturn(Optional.empty());
+
+        ReservaEntity result = reservaService.removeHospedeFromReserva(1L, 1L);
+
+        assertNull(result);
+        verify(reservaRepository).findById(1L);
+        verify(hospedeRepository, never()).findById(anyLong());
+    }
+
+    @Test
+    void testRemoveHospedeToReservaHospedeInexistente() {
+        ReservaEntity reserva = new ReservaEntity();
+        reserva.setId(1L);
+        reserva.setHospedes(new ArrayList<>());
+
+        when(reservaRepository.findById(reserva.getId())).thenReturn(Optional.of(reserva));
+        when(hospedeRepository.findById(1L)).thenReturn(Optional.empty());
+
+        ReservaEntity result = reservaService.removeHospedeFromReserva(reserva.getId(), 1L);
+
+        assertNull(result);
+        verify(reservaRepository).findById(reserva.getId());
+        verify(hospedeRepository).findById(1L);
+    }
+
+    @Test
+    void testRealizarCheckInSuccess() {
         ReservaEntity reserva = new ReservaEntity();
         reserva.setId(1L);
         reserva.setStatus(ReservaStatus.RESERVADO);
 
         when(reservaRepository.findById(reserva.getId())).thenReturn(Optional.of(reserva));
-        when(reservaRepository.save(any(ReservaEntity.class))).thenReturn(reserva);
+        when(reservaRepository.save(reserva)).thenReturn(reserva);
 
-        ReservaEntity updatedReserva = reservaService.realizarCheckIn(reserva.getId());
+        ReservaEntity result = reservaService.realizarCheckIn(reserva.getId());
 
-        assertNotNull(updatedReserva);
-        assertEquals(ReservaStatus.OCUPADO, updatedReserva.getStatus());
+        assertNotNull(result);
+        assertEquals(ReservaStatus.OCUPADO, result.getStatus());
+        verify(reservaRepository).findById(reserva.getId());
+        verify(reservaRepository).save(reserva);
     }
 
     @Test
-    void testRealizarCheckOut() {
+    void testRealizarCheckInReservaInexistente() {
+        Long reservaId = 1L;
+        when(reservaRepository.findById(reservaId)).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> reservaService.realizarCheckIn(reservaId));
+        verify(reservaRepository).findById(reservaId);
+    }
+
+    @Test
+    void testRealizarCheckInStatusCancelado() {
+        Long reservaId = 1L;
+        ReservaEntity reserva = new ReservaEntity();
+        reserva.setId(reservaId);
+        reserva.setStatus(ReservaStatus.CANCELADO);
+
+        when(reservaRepository.findById(reservaId)).thenReturn(Optional.of(reserva));
+
+        assertThrows(IllegalStateException.class, () -> reservaService.realizarCheckIn(reservaId));
+        verify(reservaRepository).findById(reservaId);
+    }
+
+    @Test
+    void testRealizarCheckInReservaStatusDiferenteDeReservado() {
+        Long reservaId = 1L;
+        ReservaEntity reserva = new ReservaEntity();
+        reserva.setId(reservaId);
+        reserva.setStatus(ReservaStatus.OCUPADO);
+
+        when(reservaRepository.findById(reservaId)).thenReturn(Optional.of(reserva));
+
+        assertThrows(IllegalStateException.class, () -> reservaService.realizarCheckIn(reservaId));
+        verify(reservaRepository).findById(reservaId);
+    }
+
+    @Test
+    void testRealizarCheckOutSuccess() {
         ReservaEntity reserva = new ReservaEntity();
         reserva.setId(1L);
         reserva.setStatus(ReservaStatus.OCUPADO);
@@ -260,5 +442,40 @@ public class ReservaServiceTest {
 
         assertNotNull(updatedReserva);
         assertEquals(ReservaStatus.SAIDA, updatedReserva.getStatus());
+    }
+
+    @Test
+    void testRealizarCheckOutReservaInexistente() {
+        Long reservaId = 1L;
+        when(reservaRepository.findById(reservaId)).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> reservaService.realizarCheckOut(reservaId));
+        verify(reservaRepository).findById(reservaId);
+    }
+
+    @Test
+    void testRealizarCheckOutStatusCancelado() {
+        Long reservaId = 1L;
+        ReservaEntity reserva = new ReservaEntity();
+        reserva.setId(reservaId);
+        reserva.setStatus(ReservaStatus.CANCELADO);
+
+        when(reservaRepository.findById(reservaId)).thenReturn(Optional.of(reserva));
+
+        assertThrows(IllegalStateException.class, () -> reservaService.realizarCheckOut(reservaId));
+        verify(reservaRepository).findById(reservaId);
+    }
+
+    @Test
+    void testRealizarCheckOutReservaStatusDiferenteDeOcupado() {
+        Long reservaId = 1L;
+        ReservaEntity reserva = new ReservaEntity();
+        reserva.setId(reservaId);
+        reserva.setStatus(ReservaStatus.RESERVADO);
+
+        when(reservaRepository.findById(reservaId)).thenReturn(Optional.of(reserva));
+
+        assertThrows(IllegalStateException.class, () -> reservaService.realizarCheckOut(reservaId));
+        verify(reservaRepository).findById(reservaId);
     }
 }

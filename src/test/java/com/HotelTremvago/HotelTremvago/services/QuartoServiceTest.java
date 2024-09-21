@@ -145,22 +145,37 @@ public class QuartoServiceTest {
         quarto1.setId(1L);
         QuartoEntity quarto2 = new QuartoEntity();
         quarto2.setId(2L);
+        QuartoEntity quarto3 = new QuartoEntity();
+        quarto3.setId(3L);
 
-        List<QuartoEntity> quartos = List.of(quarto1, quarto2);
+        List<QuartoEntity> quartos = List.of(quarto1, quarto2, quarto3);
         when(quartoRepository.findByTipoQuartoECapacidade(tipoQuartoId, capacidade)).thenReturn(quartos);
 
         List<ReservaEntity> reservas = new ArrayList<>();
+
         ReservaEntity reserva1 = new ReservaEntity();
         reserva1.setQuarto(quarto1);
-        reserva1.setDataInicio(dataInicio);
-        reserva1.setDataFinal(dataFinal);
+        reserva1.setDataInicio(Date.from(localDataInicio.minusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        reserva1.setDataFinal(Date.from(localDataFinal.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
         reservas.add(reserva1);
 
         ReservaEntity reserva2 = new ReservaEntity();
         reserva2.setQuarto(quarto2);
-        reserva2.setDataInicio(dataInicio);
-        reserva2.setDataFinal(dataFinal);
+        reserva2.setDataInicio(Date.from(localDataInicio.minusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        reserva2.setDataFinal(Date.from(localDataFinal.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
         reservas.add(reserva2);
+
+        ReservaEntity reserva3 = new ReservaEntity();
+        reserva3.setQuarto(quarto1);
+        reserva3.setDataInicio(Date.from(localDataInicio.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        reserva3.setDataFinal(Date.from(localDataFinal.plusDays(2).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        reservas.add(reserva3);
+
+        ReservaEntity reserva4 = new ReservaEntity();
+        reserva4.setQuarto(quarto3);
+        reserva4.setDataInicio(Date.from(localDataInicio.minusDays(2).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        reserva4.setDataFinal(Date.from(localDataInicio.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        reservas.add(reserva4);
 
         when(reservaRepository.findByTipoQuartoCapacidadeStatusData(tipoQuartoId, capacidade, dataInicio, dataFinal))
                 .thenReturn(reservas);
@@ -170,8 +185,11 @@ public class QuartoServiceTest {
         assertNotNull(result);
         assertTrue(result.isEmpty());
         verify(quartoRepository).findByTipoQuartoECapacidade(tipoQuartoId, capacidade);
-        verify(reservaRepository, times(2)).findByTipoQuartoCapacidadeStatusData(tipoQuartoId, capacidade, dataInicio, dataFinal);
+        verify(reservaRepository, times(3)).findByTipoQuartoCapacidadeStatusData(tipoQuartoId, capacidade, dataInicio, dataFinal);
     }
+
+
+
 
     @Test
     void testDeleteSuccess(){
