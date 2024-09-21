@@ -17,9 +17,9 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 class CidadeServiceTest {
     @Autowired
-    private CidadeService cidadeService;
+    CidadeService cidadeService;
     @MockBean
-    private CidadeRepository cidadeRepository;
+    CidadeRepository cidadeRepository;
 
     @Test
     void testSaveSuccess() {
@@ -32,17 +32,16 @@ class CidadeServiceTest {
         verify(cidadeRepository, times(1)).save(cidade);
     }
 
-//    @Test
-//    void testSaveFailure() {
-//        CidadeEntity cidade = new CidadeEntity();
-//        when(cidadeRepository.save(cidade)).thenThrow(new RuntimeException("Erro ao salvar"));
-//
-//        CidadeEntity result = cidadeService.save(cidade);
-//
-//        assertNotNull(result);
-//        assertEquals(new CidadeEntity(), result);
-//        verify(cidadeRepository, times(1)).save(cidade);
-//    }
+    @Test
+    void testSaveFailure() {
+        CidadeEntity cidade = new CidadeEntity();
+        when(cidadeRepository.save(cidade)).thenThrow(new RuntimeException("Erro ao salvar lista"));
+
+        CidadeEntity result = cidadeService.save(cidade);
+
+        assertNotNull(result);
+        verify(cidadeRepository, times(1)).save(cidade);
+    }
 
     @Test
     void testSaveAllSuccess() {
@@ -71,7 +70,6 @@ class CidadeServiceTest {
     @Test
     void testDeleteSuccess() {
         Long id = 1L;
-
         String result = cidadeService.delete(id);
 
         assertEquals("Cidade deletada com sucesso", result);
@@ -101,17 +99,18 @@ class CidadeServiceTest {
         verify(cidadeRepository, times(1)).findById(id);
     }
 
-//    @Test
-//    void testFindByIdFailure() {
-//        Long id = 1L;
-//        when(cidadeRepository.findById(id)).thenReturn(Optional.empty());
-//
-//        CidadeEntity result = cidadeService.findById(id);
-//
-//        assertNotNull(result);
-//        assertEquals(new CidadeEntity(), result);
-//        verify(cidadeRepository, times(1)).findById(id);
-//    }
+    @Test
+    void testFindByIdFailure() {
+        Long id = 1L;
+        CidadeEntity cidade = new CidadeEntity();
+        when(cidadeRepository.findById(id)).thenReturn(Optional.of(cidade)).thenThrow(new IllegalArgumentException("ID não pode ser null"));
+
+        CidadeEntity result = cidadeService.findById(2L);
+
+        assertNotNull(result);
+        assertNotEquals(result.getId(), id);
+        verify(cidadeRepository, times(1)).findById(2L);
+    }
 
     @Test
     void testFindAllSuccess() {
@@ -150,8 +149,20 @@ class CidadeServiceTest {
     }
 
     @Test
+    void testFindByNomeFailure() {
+        String nome = "Cidade";
+        when(cidadeRepository.findByCidade(nome)).thenThrow(new IllegalArgumentException("Erro ao achar cidade"));
+
+        List<CidadeEntity> result = cidadeService.findByNome(nome);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(cidadeRepository, times(1)).findByCidade(nome);
+    }
+
+    @Test
     void testFindByEstadoSuccess() {
-        String estado = "EstadoY";
+        String estado = "Estado";
         List<CidadeEntity> cidades = Collections.singletonList(new CidadeEntity());
         when(cidadeRepository.findByEstado(estado)).thenReturn(cidades);
 
@@ -161,6 +172,49 @@ class CidadeServiceTest {
         assertFalse(result.isEmpty());
         verify(cidadeRepository, times(1)).findByEstado(estado);
     }
+
+    @Test
+    void testFindByEstadoFailure() {
+        String estado = "Estado";
+        when(cidadeRepository.findByEstado(estado)).thenThrow(new IllegalArgumentException("Estado não encontrado"));
+
+        List<CidadeEntity> result = cidadeService.findByEstado(estado);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(cidadeRepository, times(1)).findByEstado(estado);
+    }
+
+    @Test
+    void testUpdateSuccess() {
+        CidadeEntity cidade = new CidadeEntity();
+        cidade.setId(1L);
+        when(cidadeRepository.existsById(cidade.getId())).thenReturn(true);
+        when(cidadeRepository.save(cidade)).thenReturn(cidade);
+
+        CidadeEntity result = cidadeService.update(cidade, cidade.getId());
+
+        assertNotNull(result);
+        assertEquals(cidade.getId(), result.getId());
+        verify(cidadeRepository, times(1)).existsById(cidade.getId());
+        verify(cidadeRepository, times(1)).save(cidade);
+    }
+
+    @Test
+    void testUpdateFailure() {
+        CidadeEntity cidade = new CidadeEntity();
+        cidade.setId(1L);
+        when(cidadeRepository.existsById(cidade.getId())).thenReturn(false);
+
+        CidadeEntity result = cidadeService.update(cidade, cidade.getId());
+
+        assertNotNull(result);
+        assertNull(result.getId());
+        verify(cidadeRepository, times(1)).existsById(cidade.getId());
+        verify(cidadeRepository, times(0)).save(cidade);
+    }
+
+
 
 //    @Test
 //    void testFindByNomeAndEstadoSuccess() {

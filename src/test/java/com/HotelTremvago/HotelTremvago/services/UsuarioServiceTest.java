@@ -21,9 +21,9 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 public class UsuarioServiceTest {
     @Autowired
-    private UsuarioService usuarioService;
+    UsuarioService usuarioService;
     @MockBean
-    private UsuarioRepository usuarioRepository;
+    UsuarioRepository usuarioRepository;
 
     @Test
     public void testSave() {
@@ -82,7 +82,8 @@ public class UsuarioServiceTest {
     @Test
     public void testUpdateException() {
         UsuarioEntity usuario = new UsuarioEntity();
-        when(usuarioRepository.findById(anyLong())).thenThrow(new RuntimeException("Erro"));
+        usuario.setId(1L);
+        when(usuarioRepository.findById(2L)).thenThrow(new IllegalArgumentException("Usuário não encontrado"));
 
         UsuarioEntity result = usuarioService.update(usuario, 1L);
 

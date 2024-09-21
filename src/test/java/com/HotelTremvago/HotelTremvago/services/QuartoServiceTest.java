@@ -13,114 +13,340 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class QuartoServiceTest {
     @Autowired
-    private QuartoService quartoService;
+    QuartoService quartoService;
     @MockBean
-    private QuartoRepository quartoRepository;
+    QuartoRepository quartoRepository;
     @MockBean
-    private TipoQuartoRepository tipoQuartoRepository;
+    TipoQuartoRepository tipoQuartoRepository;
     @MockBean
-    private ReservaRepository reservaRepository;
+    ReservaRepository reservaRepository;
 
     @Test
-    public void testCriarQuartoHandlesException() {
-        QuartoEntity quarto = new QuartoEntity();
-        TipoQuartoEntity tipoQuarto = new TipoQuartoEntity();
-        quarto.setTipoQuarto(tipoQuarto);
-
-        when(tipoQuartoRepository.findByNome(anyString())).thenThrow(new RuntimeException("Erro no banco de dados"));
-
-        QuartoEntity resultado = quartoService.criarQuarto(quarto);
-
-        assertNull(resultado, "O resultado deve ser nulo em caso de erro");
-        verify(tipoQuartoRepository).findByNome(tipoQuarto.getNome());
-    }
-
-    @Test
-    public void testQuartosDisponiveisComDatasIncorretas() {
-        Long tipoQuartoId = 1L;
-        int capacidade = 2;
-        Date dataInicio = Date.from(LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        Date dataFinal = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
-
-        List<QuartoEntity> quartos = Collections.singletonList(new QuartoEntity());
-        when(quartoRepository.findByTipoQuartoECapacidade(tipoQuartoId, capacidade)).thenReturn(quartos);
-        when(reservaRepository.findByTipoQuartoCapacidadeStatusData(anyLong(), anyInt(), any(), any())).thenReturn(Collections.emptyList());
-
-        List<QuartoEntity> resultado = quartoService.quartosDisponiveis(tipoQuartoId, capacidade, dataInicio, dataFinal);
-
-        assertFalse(resultado.isEmpty(), "A lista de quartos disponíveis não deve estar vazia");
-        verify(quartoRepository).findByTipoQuartoECapacidade(tipoQuartoId, capacidade);
-        verify(reservaRepository).findByTipoQuartoCapacidadeStatusData(tipoQuartoId, capacidade, dataInicio, dataFinal);
-    }
-
-    @Test
-    public void testQuartosDisponiveisComReservasMultiplicadas() {
-        Long tipoQuartoId = 1L;
-        int capacidade = 2;
-        Date dataInicio = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
-        Date dataFinal = Date.from(LocalDate.now().plusDays(2).atStartOfDay(ZoneId.systemDefault()).toInstant());
-
+    void testCriarQuartoSuccess(){
         QuartoEntity quarto = new QuartoEntity();
         quarto.setId(1L);
 
+        TipoQuartoEntity tipoQuarto = new TipoQuartoEntity();
+        tipoQuarto.setId(1L);
+        tipoQuarto.setNome("Standard");
+        quarto.setTipoQuarto(tipoQuarto);
+
+        when(tipoQuartoRepository.findByNome(tipoQuarto.getNome())).thenReturn(Optional.of(tipoQuarto));
+        when(quartoRepository.save(quarto)).thenReturn(quarto);
+
+        QuartoEntity result = quartoService.criarQuarto(quarto);
+
+        assertNotNull(result);
+        assertEquals(result, quarto);
+        verify(tipoQuartoRepository).findByNome(tipoQuarto.getNome());
+        verify(quartoRepository).save(quarto);
+    }
+
+    @Test
+    void testCriarQuartoETipoQuartoSuccess(){
+        QuartoEntity quarto = new QuartoEntity();
+        quarto.setId(1L);
+
+        TipoQuartoEntity tipoQuarto = new TipoQuartoEntity();
+        tipoQuarto.setNome("Standard");
+        quarto.setTipoQuarto(tipoQuarto);
+
+        when(tipoQuartoRepository.findByNome(tipoQuarto.getNome())).thenReturn(Optional.empty());
+        when(tipoQuartoRepository.save(tipoQuarto)).thenReturn(tipoQuarto);
+        when(quartoRepository.save(quarto)).thenReturn(quarto);
+
+        QuartoEntity result = quartoService.criarQuarto(quarto);
+
+        assertNotNull(result);
+        assertEquals(result, quarto);
+        verify(tipoQuartoRepository).findByNome(tipoQuarto.getNome());
+        verify(tipoQuartoRepository).save(tipoQuarto);
+        verify(quartoRepository).save(quarto);
+    }
+    
+    @Test
+    void testCriarQuartoFailure(){
+        QuartoEntity quarto = new QuartoEntity();
+        quarto.setId(1L);
+
+        TipoQuartoEntity tipoQuarto = new TipoQuartoEntity();
+        tipoQuarto.setId(1L);
+        tipoQuarto.setNome("Standard");
+        quarto.setTipoQuarto(tipoQuarto);
+
+        when(tipoQuartoRepository.findByNome(tipoQuarto.getNome())).thenReturn(Optional.of(tipoQuarto));
+        when(quartoRepository.save(quarto)).thenThrow(new IllegalArgumentException("Erro ao salvar quarto"));
+
+        QuartoEntity result = quartoService.criarQuarto(quarto);
+
+        assertNull(result);
+        assertNotEquals(result, quarto);
+        verify(tipoQuartoRepository).findByNome(tipoQuarto.getNome());
+        verify(quartoRepository).save(quarto);
+    }
+
+    @Test
+    public void testQuartosDisponiveisComVagas() {
+        Long tipoQuartoId = 1L;
+        int capacidade = 2;
+        LocalDate localDataInicio = LocalDate.of(2024, 9, 21);
+        LocalDate localDataFinal = localDataInicio.plusDays(3);
+
+        Date dataInicio = Date.from(localDataInicio.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date dataFinal = Date.from(localDataFinal.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        QuartoEntity quarto1 = new QuartoEntity();
+        quarto1.setId(1L);
+        QuartoEntity quarto2 = new QuartoEntity();
+        quarto2.setId(2L);
+
+        List<QuartoEntity> quartos = List.of(quarto1, quarto2);
+        when(quartoRepository.findByTipoQuartoECapacidade(tipoQuartoId, capacidade)).thenReturn(quartos);
+
+        List<ReservaEntity> reservas = new ArrayList<>();
+        ReservaEntity reserva = new ReservaEntity();
+        reserva.setQuarto(quarto1);
+        reserva.setDataInicio(dataInicio);
+        reserva.setDataFinal(dataFinal);
+        reservas.add(reserva);
+
+        when(reservaRepository.findByTipoQuartoCapacidadeStatusData(tipoQuartoId, capacidade, dataInicio, dataFinal))
+                .thenReturn(reservas);
+
+        List<QuartoEntity> result = quartoService.quartosDisponiveis(tipoQuartoId, capacidade, dataInicio, dataFinal);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(quarto2, result.get(0));
+        verify(quartoRepository).findByTipoQuartoECapacidade(tipoQuartoId, capacidade);
+        verify(reservaRepository, times(2)).findByTipoQuartoCapacidadeStatusData(tipoQuartoId, capacidade, dataInicio, dataFinal);
+    }
+
+    @Test
+    public void testQuartosDisponiveisSemVagas() {
+        Long tipoQuartoId = 1L;
+        int capacidade = 2;
+        LocalDate localDataInicio = LocalDate.of(2024, 9, 21);
+        LocalDate localDataFinal = localDataInicio.plusDays(3);
+
+        Date dataInicio = Date.from(localDataInicio.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date dataFinal = Date.from(localDataFinal.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        QuartoEntity quarto1 = new QuartoEntity();
+        quarto1.setId(1L);
+        QuartoEntity quarto2 = new QuartoEntity();
+        quarto2.setId(2L);
+
+        List<QuartoEntity> quartos = List.of(quarto1, quarto2);
+        when(quartoRepository.findByTipoQuartoECapacidade(tipoQuartoId, capacidade)).thenReturn(quartos);
+
+        List<ReservaEntity> reservas = new ArrayList<>();
         ReservaEntity reserva1 = new ReservaEntity();
-        reserva1.setQuarto(quarto);
+        reserva1.setQuarto(quarto1);
         reserva1.setDataInicio(dataInicio);
-        reserva1.setDataFinal(Date.from(LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        reserva1.setDataFinal(dataFinal);
+        reservas.add(reserva1);
 
         ReservaEntity reserva2 = new ReservaEntity();
-        reserva2.setQuarto(quarto);
-        reserva2.setDataInicio(Date.from(LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        reserva2.setQuarto(quarto2);
+        reserva2.setDataInicio(dataInicio);
         reserva2.setDataFinal(dataFinal);
+        reservas.add(reserva2);
 
-        List<QuartoEntity> quartos = Collections.singletonList(quarto);
-        List<ReservaEntity> reservas = Arrays.asList(reserva1, reserva2);
+        when(reservaRepository.findByTipoQuartoCapacidadeStatusData(tipoQuartoId, capacidade, dataInicio, dataFinal))
+                .thenReturn(reservas);
 
-        when(quartoRepository.findByTipoQuartoECapacidade(tipoQuartoId, capacidade)).thenReturn(quartos);
-        when(reservaRepository.findByTipoQuartoCapacidadeStatusData(tipoQuartoId, capacidade, dataInicio, dataFinal)).thenReturn(reservas);
+        List<QuartoEntity> result = quartoService.quartosDisponiveis(tipoQuartoId, capacidade, dataInicio, dataFinal);
 
-        List<QuartoEntity> resultado = quartoService.quartosDisponiveis(tipoQuartoId, capacidade, dataInicio, dataFinal);
-
-        assertTrue(resultado.isEmpty(), "A lista de quartos disponíveis deve estar vazia quando todos estão ocupados");
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
         verify(quartoRepository).findByTipoQuartoECapacidade(tipoQuartoId, capacidade);
-        verify(reservaRepository).findByTipoQuartoCapacidadeStatusData(tipoQuartoId, capacidade, dataInicio, dataFinal);
+        verify(reservaRepository, times(2)).findByTipoQuartoCapacidadeStatusData(tipoQuartoId, capacidade, dataInicio, dataFinal);
     }
 
     @Test
-    public void testUpdateHandlesException() {
-        QuartoEntity quartoAtualizado = new QuartoEntity();
-        quartoAtualizado.setTipoQuarto(new TipoQuartoEntity());
+    void testDeleteSuccess(){
+        Long id = 1L;
+        doNothing().when(quartoRepository).deleteById(id);
 
-        when(quartoRepository.findById(anyLong())).thenThrow(new RuntimeException("Quarto não encontrado com o ID 1"));
+        String result = quartoService.delete(id);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            quartoService.update(quartoAtualizado, 1L);
+        assertNotNull(result);
+        assertEquals("Quarto deletado",result);
+        verify(quartoRepository).deleteById(id);
+    }
+
+    @Test
+    void testDeleteFailure(){
+        Long id = 1L;
+        doThrow(new IllegalArgumentException("Erro ao deletar")).when(quartoRepository).deleteById(id);
+
+        String result = quartoService.delete(id);
+
+        assertNotNull(result);
+        assertEquals("Nao foi possivel deletar quarto",result);
+        verify(quartoRepository).deleteById(id);
+    }
+
+    @Test
+    void testUpdateSuccess(){
+        QuartoEntity quarto = new QuartoEntity();
+        quarto.setId(1L);
+        quarto.setNome("Standard");
+
+        QuartoEntity updatedQuarto = new QuartoEntity();
+        updatedQuarto.setNome("Deluxe");
+
+        TipoQuartoEntity tipoQuarto = new TipoQuartoEntity();
+        tipoQuarto.setId(1L);
+        updatedQuarto.setTipoQuarto(tipoQuarto);
+
+        when(quartoRepository.findById(quarto.getId())).thenReturn(Optional.of(quarto));
+        when(tipoQuartoRepository.findById(tipoQuarto.getId())).thenReturn(Optional.of(tipoQuarto));
+        when(quartoRepository.save(quarto)).thenReturn(quarto);
+
+        QuartoEntity result = quartoService.update(updatedQuarto, quarto.getId());
+
+        assertNotNull(result);
+        assertEquals(result, quarto);
+        verify(quartoRepository).findById(quarto.getId());
+        verify(tipoQuartoRepository).findById(tipoQuarto.getId());
+        verify(quartoRepository).save(quarto);
+    }
+
+    @Test
+    void testUpdateQuartoFailure(){
+        QuartoEntity quarto = new QuartoEntity();
+        quarto.setId(1L);
+        quarto.setNome("Standard");
+
+        QuartoEntity updatedQuarto = new QuartoEntity();
+        updatedQuarto.setNome("Deluxe");
+
+        TipoQuartoEntity tipoQuarto = new TipoQuartoEntity();
+        tipoQuarto.setId(1L);
+        updatedQuarto.setTipoQuarto(tipoQuarto);
+
+        when(quartoRepository.findById(quarto.getId())).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(RuntimeException.class, () -> {
+            quartoService.update(updatedQuarto, quarto.getId());
         });
 
-        assertEquals("Quarto não encontrado com o ID 1", exception.getMessage());
-        verify(quartoRepository).findById(1L);
+        assertNotNull(exception);
+        assertEquals("Quarto not found with id " + quarto.getId(), exception.getMessage());
+        verify(quartoRepository).findById(quarto.getId());
+        verify(tipoQuartoRepository,times(0)).findById(tipoQuarto.getId());
+        verify(quartoRepository, times(0)).save(quarto);
     }
 
     @Test
-    public void testFindAllHandlesException() {
-        when(quartoRepository.findAll()).thenThrow(new RuntimeException("Erro no banco de dados"));
+    void testUpdateTipoQuartoFailure(){
+        QuartoEntity quarto = new QuartoEntity();
+        quarto.setId(1L);
+        quarto.setNome("Standard");
 
-        List<QuartoEntity> resultado = quartoService.findAll();
+        QuartoEntity updatedQuarto = new QuartoEntity();
+        updatedQuarto.setNome("Deluxe");
 
-        assertTrue(resultado.isEmpty(), "A lista de quartos deve estar vazia em caso de erro");
+        TipoQuartoEntity tipoQuarto = new TipoQuartoEntity();
+        tipoQuarto.setId(1L);
+        updatedQuarto.setTipoQuarto(tipoQuarto);
+
+        when(quartoRepository.findById(quarto.getId())).thenReturn(Optional.of(quarto));
+        when(tipoQuartoRepository.findById(tipoQuarto.getId())).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(RuntimeException.class, () -> {
+            quartoService.update(updatedQuarto, quarto.getId());
+        });
+
+        assertNotNull(exception);
+        assertEquals("TipoQuarto not found with id " + updatedQuarto.getTipoQuarto().getId(), exception.getMessage());
+        verify(quartoRepository).findById(quarto.getId());
+        verify(tipoQuartoRepository).findById(tipoQuarto.getId());
+        verify(quartoRepository, times(0)).save(quarto);
+    }
+
+    @Test
+    void testUpdateTipoQuartoNull(){
+        QuartoEntity quarto = new QuartoEntity();
+        quarto.setId(1L);
+        quarto.setNome("Standard");
+
+        QuartoEntity updatedQuarto = new QuartoEntity();
+        updatedQuarto.setNome("Deluxe");
+
+        TipoQuartoEntity tipoQuarto = null;
+        updatedQuarto.setTipoQuarto(tipoQuarto);
+
+        when(quartoRepository.findById(quarto.getId())).thenReturn(Optional.of(quarto));
+        when(quartoRepository.save(quarto)).thenReturn(quarto);
+
+        QuartoEntity result = quartoService.update(updatedQuarto, quarto.getId());
+
+        assertNotNull(result);
+        assertEquals(result, quarto);
+        verify(quartoRepository).findById(quarto.getId());
+        verify(tipoQuartoRepository, times(0)).findById(1L);
+        verify(quartoRepository).save(quarto);
+    }
+
+    @Test
+    void testFindByIdSuccess(){
+        QuartoEntity quarto = new QuartoEntity();
+        quarto.setId(1L);
+        when(quartoRepository.findById(quarto.getId())).thenReturn(Optional.of(quarto));
+
+        QuartoEntity result = quartoService.findById(quarto.getId());
+
+        assertNotNull(result);
+        assertEquals(result, quarto);
+        verify(quartoRepository).findById(quarto.getId());
+    }
+
+    @Test
+    void testFindByIdFailure(){
+        QuartoEntity quarto = new QuartoEntity();
+        quarto.setId(1L);
+        when(quartoRepository.findById(quarto.getId())).thenReturn(Optional.empty());
+
+        QuartoEntity result = quartoService.findById(quarto.getId());
+
+        assertNotNull(result);
+        assertNotEquals(result, quarto);
+        verify(quartoRepository).findById(quarto.getId());
+    }
+
+    @Test
+    void testFindAllSuccess(){
+        List<QuartoEntity> quartos = List.of(new QuartoEntity(), new QuartoEntity());
+        when(quartoRepository.findAll()).thenReturn(quartos);
+
+        List<QuartoEntity> result = quartoService.findAll();
+
+        assertNotNull(result);
+        assertEquals(result, quartos);
+        verify(quartoRepository).findAll();
+    }
+
+    @Test
+    void testFindAllFailure(){
+        List<QuartoEntity> quartos = List.of(new QuartoEntity(), new QuartoEntity());
+        when(quartoRepository.findAll()).thenThrow(new IllegalArgumentException("Erro ao encontrar quartos"));
+
+        List<QuartoEntity> result = quartoService.findAll();
+
+        assertNotNull(result);
+        assertNotEquals(result, quartos);
         verify(quartoRepository).findAll();
     }
 }
