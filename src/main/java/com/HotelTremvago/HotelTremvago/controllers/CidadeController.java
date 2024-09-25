@@ -80,13 +80,5 @@ public class CidadeController {
         }
     }
 
-    @GetMapping("/findByNomeAndEstado")
-    public ResponseEntity<List<CidadeEntity>> findByNomeAndEstado(@RequestParam String nome, @RequestParam String estado) {
-        try {
-            List<CidadeEntity> cidades = cidadeService.findByNomeAndEstado(nome, estado);
-            return new ResponseEntity<>(cidades, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
-    }
+
 }

@@ -100,12 +100,12 @@ public class CidadeService {
         }
     }
 
-    public List<CidadeEntity> findByNomeAndEstado(String nome, String estado) {
-        try {
-            return cidadeRepository.findByCidadeAndEstado(nome, estado);
-        } catch (Exception e) {
-            System.out.println("Não foi possível encontrar cidades por nome e estado: " + e.getMessage());
-            return Collections.emptyList();
-        }
-    }
+//    public List<CidadeEntity> findByNomeAndEstado(String nome, String estado) {
+//        try {
+//            return cidadeRepository.findByCidadeAndEstado(nome, estado);
+//        } catch (Exception e) {
+//            System.out.println("Não foi possível encontrar cidades por nome e estado: " + e.getMessage());
+//            return Collections.emptyList();
+//        }
+//    }
 }

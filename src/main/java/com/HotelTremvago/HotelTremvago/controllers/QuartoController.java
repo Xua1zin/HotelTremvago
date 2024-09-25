@@ -1,8 +1,7 @@
 package com.HotelTremvago.HotelTremvago.controllers;
 
 import com.HotelTremvago.HotelTremvago.entities.QuartoEntity;
-import com.HotelTremvago.HotelTremvago.entities.TipoQuartoEntity;
-import com.HotelTremvago.HotelTremvago.repositories.TipoQuartoRepository;
+
 import com.HotelTremvago.HotelTremvago.services.QuartoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,30 +9,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/quarto")
 public class QuartoController {
     @Autowired
     private QuartoService quartoService;
-    @Autowired
-    private TipoQuartoRepository tipoQuartoRepository;
 
     @PostMapping("/criarQuarto")
     public ResponseEntity<QuartoEntity> criarQuarto(@RequestBody QuartoEntity quartoEntity) {
         try {
             QuartoEntity novoQuarto = quartoService.criarQuarto(quartoEntity);
-            Long tipoQuartoId = novoQuarto.getTipoQuarto().getId();
-
-            Optional<TipoQuartoEntity> tipoQuartoOpt = tipoQuartoRepository.findById(tipoQuartoId);
-
-            if (novoQuarto != null && novoQuarto.getId() != null) {
-                novoQuarto.setTipoQuarto(tipoQuartoOpt.get());
-                return new ResponseEntity<>(novoQuarto, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-            }
+            return new ResponseEntity<>(novoQuarto, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }

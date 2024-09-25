@@ -1,17 +1,14 @@
 package com.HotelTremvago.HotelTremvago.controllers;
 
-import com.HotelTremvago.HotelTremvago.entities.HospedeEntity;
 import com.HotelTremvago.HotelTremvago.entities.QuartoEntity;
 import com.HotelTremvago.HotelTremvago.entities.ReservaEntity;
 import com.HotelTremvago.HotelTremvago.entities.ReservaStatus;
 import com.HotelTremvago.HotelTremvago.repositories.QuartoRepository;
 import com.HotelTremvago.HotelTremvago.repositories.ReservaRepository;
-import com.HotelTremvago.HotelTremvago.services.HospedeService;
 import com.HotelTremvago.HotelTremvago.services.QuartoService;
 import com.HotelTremvago.HotelTremvago.services.ReservaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
