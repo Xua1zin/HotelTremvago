@@ -96,6 +96,12 @@ public class ReservaService {
                 .filter(dia -> LocalDate.of(ano, mes, dia).isAfter(hoje))
                 .collect(Collectors.toList());
 
+        TipoQuartoEntity tipoQuarto = tipoQuartoRepository.findById(tipoQuartoId)
+                .orElse(null);
+
+        if (tipoQuarto == null) {
+            return new ArrayList<>();
+        }
         return datasLivres;
     }
 

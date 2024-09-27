@@ -4,6 +4,7 @@ import com.HotelTremvago.HotelTremvago.entities.*;
 import com.HotelTremvago.HotelTremvago.repositories.HospedeRepository;
 import com.HotelTremvago.HotelTremvago.repositories.QuartoRepository;
 import com.HotelTremvago.HotelTremvago.repositories.ReservaRepository;
+import com.HotelTremvago.HotelTremvago.repositories.TipoQuartoRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -31,6 +32,8 @@ public class ReservaServiceTest {
     HospedeRepository hospedeRepository;
     @MockBean
     QuartoRepository quartoRepository;
+    @MockBean
+    TipoQuartoRepository tipoQuartoRepository;
 
     @Test
     void testCalcularDiaria() {
@@ -72,6 +75,9 @@ public class ReservaServiceTest {
         tipoQuarto.setNome("Tipo A");
         tipoQuarto.setValor(200.0);
         quarto.setTipoQuarto(tipoQuarto);
+
+        Mockito.when(tipoQuartoRepository.findById(tipoQuartoId))
+                .thenReturn(Optional.of(tipoQuarto));
 
         quartosDisponiveis.add(quarto);
 
